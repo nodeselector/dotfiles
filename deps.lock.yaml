@@ -1,5 +1,5 @@
 version: 1
-locked_at: "2026-05-03T03:53:24Z"
+locked_at: "2026-05-03T04:13:04Z"
 deps:
     ControlEscape.spoon:
         type: github-clone
@@ -9,10 +9,35 @@ deps:
         type: github-clone
         repo: zsh-users/antigen
         ref: 8846aa902047992e86816cbd941acc86646bd83b
+    extrakto:
+        type: github-clone
+        repo: laktak/extrakto
+        ref: d1af77988081dae496fa4a1f5e5e6bc9ef66767f
     fzf:
         type: github-clone
         repo: junegunn/fzf
         ref: b4a86a9c8a688159131a27b6ec9dbce72ec11573
+    gvm:
+        type: curl-script
+        repo: moovweb/gvm
+        tag: stable
+        ref: 1218d4ed0fc0a878bc3471fc6139d0af8df8baa2
+        file: binscripts/gvm-installer
+        file_sha256: a9491cbd933c6b3b1adbf523c0ae44f13a03fd2da212ad9a13ce596daaa303a4
+    lazydocker:
+        type: github-release
+        repo: jesseduffield/lazydocker
+        tag: v0.25.2
+        ref: 7e7aadc2071d58031bf2daafca1fbd4093efc23f
+        assets:
+            darwin-arm64:
+                name: lazydocker_0.25.2_Darwin_arm64.tar.gz
+                url: https://github.com/jesseduffield/lazydocker/releases/download/v0.25.2/lazydocker_0.25.2_Darwin_arm64.tar.gz
+                sha256: 4a54d7b4abdf255b2bce9806641eac5568d5b7fbc820c1b5d3f9e34ea1367d60
+            linux-amd64:
+                name: lazydocker_0.25.2_Linux_x86_64.tar.gz
+                url: https://github.com/jesseduffield/lazydocker/releases/download/v0.25.2/lazydocker_0.25.2_Linux_x86_64.tar.gz
+                sha256: 0d9dbfc26068b218e7ed84b104748cadc6e3cf733c0afd35465306fb39b9523c
     lazygit:
         type: github-release
         repo: jesseduffield/lazygit
@@ -62,6 +87,13 @@ deps:
                 name: punch-linux-amd64.tar.gz
                 url: https://github.com/nodeselector/punch/releases/download/v0.1.0/punch-linux-amd64.tar.gz
                 sha256: aca1cdbeb2ba9cc4441cb96915427c4c24fb5a0afa70a49c84ca5ff96677ff50
+    rustup:
+        type: curl-script
+        repo: rust-lang/rustup
+        tag: 1.29.0
+        ref: 28d1352dbcb436d3111c3594b9e1588e94950464
+        file: rustup-init.sh
+        file_sha256: 6c30b75a75b28a96fd913a037c8581b580080b6ee9b8169a3c0feb1af7fe8caf
     starship:
         type: curl-script
         repo: starship/starship
@@ -69,10 +101,40 @@ deps:
         ref: 8758daa7767d4e73874330b1e262fca66a7ffd30
         file: install/install.sh
         file_sha256: 52c64f14a558034ebeb1907ea9364e802b32474576fd3e68265f73bc33cc8fbb
+    tmux-fingers:
+        type: github-clone
+        repo: Morantron/tmux-fingers
+        ref: 29f90165fa858021ebd31838fb4d6f112c6d9ef0
+    tmux-fzf:
+        type: github-clone
+        repo: sainnhe/tmux-fzf
+        ref: 05af76daa2487575b93a4f604693b00969f19c2f
+    tmux-sensible:
+        type: github-clone
+        repo: tmux-plugins/tmux-sensible
+        ref: 25cb91f42d020f675bb0a2ce3fbd3a5d96119efa
     tpm:
         type: github-clone
         repo: tmux-plugins/tpm
         ref: 99469c4a9b1ccf77fade25842dc7bafbc8ce9946
+    uv:
+        type: github-release
+        repo: astral-sh/uv
+        tag: 0.11.8
+        ref: 0e961dd9a2bb6f73493d9e8398b725ad2d3b3837
+        assets:
+            darwin-arm64:
+                name: uv-aarch64-apple-darwin.tar.gz
+                url: https://github.com/astral-sh/uv/releases/download/0.11.8/uv-aarch64-apple-darwin.tar.gz
+                sha256: c729adb365114e844dd7f9316313a7ed6443b89bb5681d409eebac78b0bd06c8
+            linux-amd64:
+                name: uv-aarch64-unknown-linux-gnu.tar.gz
+                url: https://github.com/astral-sh/uv/releases/download/0.11.8/uv-aarch64-unknown-linux-gnu.tar.gz
+                sha256: eee8dd658d20e5ac85fec9c2326b6cbc9d83a1eef09ef07433e58698ac849591
+    vim-tmux-navigator:
+        type: github-clone
+        repo: christoomey/vim-tmux-navigator
+        ref: e41c431a0c7b7388ae7ba341f01a0d217eb3a432
     wk:
         type: github-release
         repo: 844196/wk

@@ -1,5 +1,6 @@
 deps:
-  # Binary releases
+  # ── Binary releases ──────────────────────────────────────────────
+
   wk:
     type: github-release
     repo: 844196/wk
@@ -32,7 +33,24 @@ deps:
       linux-amd64: nvim-linux-x86_64.tar.gz
     dest: ~/.local/bin/nvim
 
-  # Git clones (pinned to commit)
+  lazydocker:
+    type: github-release
+    repo: jesseduffield/lazydocker
+    assets:
+      darwin-arm64: lazydocker_{version}_Darwin_arm64.tar.gz
+      linux-amd64: lazydocker_{version}_Linux_x86_64.tar.gz
+    dest: ~/.local/bin/lazydocker
+
+  uv:
+    type: github-release
+    repo: astral-sh/uv
+    assets:
+      darwin-arm64: uv-aarch64-apple-darwin.tar.gz
+      linux-amd64: uv-aarch64-unknown-linux-gnu.tar.gz
+    dest: ~/.local/bin/uv
+
+  # ── Git clones (pinned to commit) ───────────────────────────────
+
   fzf:
     type: github-clone
     repo: junegunn/fzf
@@ -53,7 +71,35 @@ deps:
     repo: jasonrudolph/ControlEscape.spoon
     dest: ~/.hammerspoon/Spoons/ControlEscape.spoon
 
-  # Install scripts (pinned to commit + digest)
+  # ── Tmux plugins (pinned, pre-cloned for TPM) ──────────────────
+
+  tmux-sensible:
+    type: github-clone
+    repo: tmux-plugins/tmux-sensible
+    dest: ~/.tmux/plugins/tmux-sensible
+
+  vim-tmux-navigator:
+    type: github-clone
+    repo: christoomey/vim-tmux-navigator
+    dest: ~/.tmux/plugins/vim-tmux-navigator
+
+  tmux-fzf:
+    type: github-clone
+    repo: sainnhe/tmux-fzf
+    dest: ~/.tmux/plugins/tmux-fzf
+
+  tmux-fingers:
+    type: github-clone
+    repo: Morantron/tmux-fingers
+    dest: ~/.tmux/plugins/tmux-fingers
+
+  extrakto:
+    type: github-clone
+    repo: laktak/extrakto
+    dest: ~/.tmux/plugins/extrakto
+
+  # ── Install scripts (pinned to commit + digest) ────────────────
+
   nvm:
     type: curl-script
     repo: nvm-sh/nvm
@@ -66,3 +112,17 @@ deps:
     repo: starship/starship
     file: install/install.sh
     run: sh -s -- --yes
+
+  rustup:
+    type: curl-script
+    repo: rust-lang/rustup
+    tag: "1.29.0"
+    file: rustup-init.sh
+    run: sh -s -- -y
+
+  gvm:
+    type: curl-script
+    repo: moovweb/gvm
+    tag: stable
+    file: binscripts/gvm-installer
+    run: GVM_NO_UPDATE_PROFILE=true bash

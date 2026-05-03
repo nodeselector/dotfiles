@@ -1,4 +1,4 @@
 installs:
-  cmd: cargo install tuicr
+  cmd: cargo install tuicr --version 0.10.0
   depends:
     - ../dev/rust
