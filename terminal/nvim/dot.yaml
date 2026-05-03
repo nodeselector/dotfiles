@@ -9,6 +9,7 @@ linux|darwin:
     # nvim config
     init.lua: ~/.config/nvim/init.lua
     lazyvim.json: ~/.config/nvim/lazyvim.json
+    lazy-lock.json: ~/.config/nvim/lazy-lock.json
     .neoconf.json: ~/.config/nvim/.neoconf.json
     lua/config/autocmds.lua: ~/.config/nvim/lua/config/autocmds.lua
     lua/config/keymaps.lua: ~/.config/nvim/lua/config/keymaps.lua
