@@ -67,20 +67,22 @@ clone_and_link_plugin() {
   local owner="$(echo "$repo_path" | cut -d/ -f2)"
   local repo_name="$(echo "$repo_path" | cut -d/ -f3)"
   local plugin_dest="$PLUGINS_DIR/$owner/$repo_name"
+  # owner/repo for gh and git URLs (strip github.com/ prefix)
+  local short_path="${owner}/${repo_name}"
   
   echo "  Plugin: $repo_name"
   
   # Clone if not exists (gh clone respects GH_TOKEN and auth config)
   if [[ ! -d "$plugin_dest" ]]; then
     echo "    Cloning to $plugin_dest..."
-    if ! gh repo clone "$repo_path" "$plugin_dest" -- --filter=blob:none 2>/dev/null; then
+    if ! gh repo clone "$short_path" "$plugin_dest" -- --filter=blob:none 2>/dev/null; then
       # Fallback to git with https
-      if ! git clone --filter=blob:none "https://github.com/$repo_path.git" "$plugin_dest" 2>/dev/null; then
+      if ! git clone --filter=blob:none "https://github.com/${short_path}.git" "$plugin_dest" 2>/dev/null; then
         # If git clone failed and we have a token, try with token in URL
         if [[ -n "${GH_TOKEN:-}" ]]; then
           echo "    Retrying with authentication token..."
-          if ! git clone --filter=blob:none "https://${GH_TOKEN}@github.com/$repo_path.git" "$plugin_dest"; then
-            echo "ERROR: Failed to clone $repo_path (even with token)" >&2
+          if ! git clone --filter=blob:none "https://${GH_TOKEN}@github.com/${short_path}.git" "$plugin_dest"; then
+            echo "ERROR: Failed to clone $short_path (even with token)" >&2
             return 1
           fi
         else
