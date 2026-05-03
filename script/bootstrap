@@ -73,6 +73,13 @@ if ! "$repo_root/script/clone-plugins"; then
   exit 1
 fi
 
+# Install pinned dependencies (supply-chain verified)
+if [[ -f "$repo_root/deps.yaml" ]]; then
+  echo ""
+  echo "==> Installing pinned deps..."
+  punch --dotfiles "$repo_root" deps install
+fi
+
 # Run full setup with installations
 echo "==> Running setup..."
 "$repo_root/script/setup" --install

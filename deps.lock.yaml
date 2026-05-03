@@ -1,0 +1,89 @@
+version: 1
+locked_at: "2026-05-03T03:53:24Z"
+deps:
+    ControlEscape.spoon:
+        type: github-clone
+        repo: jasonrudolph/ControlEscape.spoon
+        ref: cc5749931afe61c299ac8371230ec77a870b775a
+    antigen:
+        type: github-clone
+        repo: zsh-users/antigen
+        ref: 8846aa902047992e86816cbd941acc86646bd83b
+    fzf:
+        type: github-clone
+        repo: junegunn/fzf
+        ref: b4a86a9c8a688159131a27b6ec9dbce72ec11573
+    lazygit:
+        type: github-release
+        repo: jesseduffield/lazygit
+        tag: v0.61.1
+        ref: d167063b4f45d044524f3fba97f850d1eec3f95c
+        assets:
+            darwin-arm64:
+                name: lazygit_0.61.1_darwin_arm64.tar.gz
+                url: https://github.com/jesseduffield/lazygit/releases/download/v0.61.1/lazygit_0.61.1_darwin_arm64.tar.gz
+                sha256: cb665faec92d1574d398296869c084d2b9686464a42806558b967bb87cd07bc9
+            linux-amd64:
+                name: lazygit_0.61.1_linux_x86_64.tar.gz
+                url: https://github.com/jesseduffield/lazygit/releases/download/v0.61.1/lazygit_0.61.1_linux_x86_64.tar.gz
+                sha256: 1b91e660700f2332696726b635202576b543e2bc49b639830dccd26bc5160d5d
+    neovim:
+        type: github-release
+        repo: neovim/neovim
+        tag: v0.12.2
+        ref: 4b35336f6f850ce68a230716401cdaa21bdb6a25
+        assets:
+            linux-amd64:
+                name: nvim-linux-x86_64.tar.gz
+                url: https://github.com/neovim/neovim/releases/download/v0.12.2/nvim-linux-x86_64.tar.gz
+                sha256: 31cf85945cb600d96cdf69f88bc68bec814acbff50863c5546adef3a1bcef260
+    nvm:
+        type: curl-script
+        repo: nvm-sh/nvm
+        tag: v0.40.1
+        ref: 179d45050be0a71fd57591b0ed8aedf9b177ba10
+        file: install.sh
+        file_sha256: abdb525ee9f5b48b34d8ed9fc67c6013fb0f659712e401ecd88ab989b3af8f53
+    punch:
+        type: github-release
+        repo: nodeselector/punch
+        tag: v0.1.0
+        ref: 7ba26c9bc6abae5cb12d99e39c621e4a0172bea8
+        assets:
+            darwin-amd64:
+                name: punch-darwin-amd64.tar.gz
+                url: https://github.com/nodeselector/punch/releases/download/v0.1.0/punch-darwin-amd64.tar.gz
+                sha256: e7ee510b0beee89e59dc4e51c787b5db953ca90b7f7b5c9a1636c8d46448537a
+            darwin-arm64:
+                name: punch-darwin-arm64.tar.gz
+                url: https://github.com/nodeselector/punch/releases/download/v0.1.0/punch-darwin-arm64.tar.gz
+                sha256: 15fa3dd17571bf2ea17c0609bcfc351da690452ae5a1d933e7cac424d9fe3aae
+            linux-amd64:
+                name: punch-linux-amd64.tar.gz
+                url: https://github.com/nodeselector/punch/releases/download/v0.1.0/punch-linux-amd64.tar.gz
+                sha256: aca1cdbeb2ba9cc4441cb96915427c4c24fb5a0afa70a49c84ca5ff96677ff50
+    starship:
+        type: curl-script
+        repo: starship/starship
+        tag: v1.25.1
+        ref: 8758daa7767d4e73874330b1e262fca66a7ffd30
+        file: install/install.sh
+        file_sha256: 52c64f14a558034ebeb1907ea9364e802b32474576fd3e68265f73bc33cc8fbb
+    tpm:
+        type: github-clone
+        repo: tmux-plugins/tpm
+        ref: 99469c4a9b1ccf77fade25842dc7bafbc8ce9946
+    wk:
+        type: github-release
+        repo: 844196/wk
+        tag: v1.0.2
+        ref: 762cd4c20b23e0828138ced8622e6987c8183a08
+        assets:
+            darwin-arm64:
+                name: wk-aarch64-apple-darwin
+                url: https://github.com/844196/wk/releases/download/v1.0.2/wk-aarch64-apple-darwin
+                sha256: c8081a913f876bd0de8ae586db398d3782a7e04a57803fd0903b8a26b158763f
+            linux-amd64:
+                name: wk-x86_64-unknown-linux-gnu
+                url: https://github.com/844196/wk/releases/download/v1.0.2/wk-x86_64-unknown-linux-gnu
+                sha256: c520b042160b087368ffbfac8e4c2fea7f26f95d0c498b757ef680034a790e24

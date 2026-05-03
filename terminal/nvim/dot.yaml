@@ -1,13 +1,9 @@
+# neovim: brew on darwin, punch deps on linux
 darwin:
   installs: $DOTFILES_DIR/dev/brew/brew-install-idempotent neovim
 
-linux:
-  installs: ~/.install_nvim.sh
 linux|darwin:
   links:
-    # linux install
-    install_linux.sh: ~/.install_nvim.sh
-    # zsh config
     nvim.zshrc.zsh: ~/.zshrc.d/nvim.zshrc.zsh
 
     # nvim config

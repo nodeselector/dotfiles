@@ -1,4 +1,4 @@
 installs:
-  cmd: if ! [[ -d ~/.fzf ]]; then git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install; fi
+  cmd: if [[ -d ~/.fzf ]]; then ~/.fzf/install --no-update-rc --completion --key-bindings; fi
 links:
   fzf.zshrc.zsh: ~/.zshrc.d/fzf.zshrc.zsh

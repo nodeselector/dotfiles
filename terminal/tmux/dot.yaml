@@ -1,3 +1,4 @@
+# tpm cloned via punch deps (deps.yaml)
 darwin:
   installs: $DOTFILES_DIR/dev/brew/brew-install-idempotent tmux
 
@@ -9,10 +10,3 @@ global:
     tmux-fzf-keys.sh: ~/.local/bin/tmux-fzf-keys
     tmux-swap-pane.sh: ~/.local/bin/tmux-swap-pane
     session-switch.sh: ~/.local/bin/session-switch
-  installs:
-    cmd: >
-      bash -c '
-        if ! [[ -d $HOME/.tpm ]]; then
-          git clone https://github.com/tmux-plugins/tpm $HOME/.tpm
-        fi
-        '

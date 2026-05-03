@@ -1,11 +1,4 @@
-installs:
-  # is there a better way to do this?
-  cmd: >
-      bash -c '
-        if ! [[ -d $HOME/.antigen ]]; then
-          git clone https://github.com/zsh-users/antigen.git $HOME/.antigen
-        fi
-        '
+# antigen cloned via punch deps (deps.yaml)
 links:
   .zshrc: ~/.zshrc
   dotfiles-venv.zshrc.zsh: ~/.zshrc.d/dotfiles-venv.zshrc.zsh

@@ -1,6 +1,6 @@
-installs:
-  cmd: bash -c 'export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"; curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | PROFILE=/dev/null bash; [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'
-  depends:
-    - ../terminal/zsh
+# nvm installed via punch deps (deps.yaml)
+installs: false
+depends:
+  - ../terminal/zsh
 links:
   nvm.zshrc.zsh: ~/.zshrc.d/nvm.zshrc.zsh

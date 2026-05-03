@@ -1,12 +1,5 @@
-darwin:
-  installs: bash -c 'mkdir -p ~/.local/bin ~/.config/wk && curl -sL https://github.com/844196/wk/releases/latest/download/wk-aarch64-apple-darwin -o ~/.local/bin/wk && chmod +x ~/.local/bin/wk'
-  links:
-    config.yaml: ~/.config/wk/config.yaml
-    bindings.yaml: ~/.config/wk/bindings.yaml
-    wk.zshrc.zsh: ~/.zshrc.d/wk.zshrc.zsh
-
-linux:
-  installs: bash -c 'mkdir -p ~/.local/bin ~/.config/wk && curl -sL https://github.com/844196/wk/releases/latest/download/wk-x86_64-unknown-linux-gnu -o ~/.local/bin/wk && chmod +x ~/.local/bin/wk'
+# wk binary installed via punch deps (deps.yaml)
+global:
   links:
     config.yaml: ~/.config/wk/config.yaml
     bindings.yaml: ~/.config/wk/bindings.yaml

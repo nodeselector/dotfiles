@@ -1,0 +1,68 @@
+deps:
+  # Binary releases
+  wk:
+    type: github-release
+    repo: 844196/wk
+    assets:
+      darwin-arm64: wk-aarch64-apple-darwin
+      linux-amd64: wk-x86_64-unknown-linux-gnu
+    dest: ~/.local/bin/wk
+
+  punch:
+    type: github-release
+    repo: nodeselector/punch
+    assets:
+      darwin-arm64: punch-darwin-arm64.tar.gz
+      darwin-amd64: punch-darwin-amd64.tar.gz
+      linux-amd64: punch-linux-amd64.tar.gz
+    dest: ~/.local/bin/punch
+
+  lazygit:
+    type: github-release
+    repo: jesseduffield/lazygit
+    assets:
+      darwin-arm64: lazygit_{version}_darwin_arm64.tar.gz
+      linux-amd64: lazygit_{version}_linux_x86_64.tar.gz
+    dest: ~/.local/bin/lazygit
+
+  neovim:
+    type: github-release
+    repo: neovim/neovim
+    assets:
+      linux-amd64: nvim-linux-x86_64.tar.gz
+    dest: ~/.local/bin/nvim
+
+  # Git clones (pinned to commit)
+  fzf:
+    type: github-clone
+    repo: junegunn/fzf
+    dest: ~/.fzf
+
+  tpm:
+    type: github-clone
+    repo: tmux-plugins/tpm
+    dest: ~/.tpm
+
+  antigen:
+    type: github-clone
+    repo: zsh-users/antigen
+    dest: ~/.antigen
+
+  ControlEscape.spoon:
+    type: github-clone
+    repo: jasonrudolph/ControlEscape.spoon
+    dest: ~/.hammerspoon/Spoons/ControlEscape.spoon
+
+  # Install scripts (pinned to commit + digest)
+  nvm:
+    type: curl-script
+    repo: nvm-sh/nvm
+    tag: v0.40.1
+    file: install.sh
+    run: PROFILE=/dev/null bash
+
+  starship:
+    type: curl-script
+    repo: starship/starship
+    file: install/install.sh
+    run: sh -s -- --yes

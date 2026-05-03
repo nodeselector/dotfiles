@@ -1,6 +1,4 @@
+# starship installed via punch deps (deps.yaml)
 links:
   starship.toml: ~/.config/starship.toml
   starship.zshrc.zsh: ~/.zshrc.d/starship.zshrc.zsh
-
-installs:
-  cmd: bash -c 'if ! command -v starship &>/dev/null; then curl -sS https://starship.rs/install.sh | sh -s -- --yes; else echo "starship already installed"; fi'
