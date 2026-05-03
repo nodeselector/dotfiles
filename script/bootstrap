@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Bootstrap ns-dotfiles: install punch, link configs, install tools
+# Bootstrap dotfiles: install punch, link configs, install tools
 set -eou pipefail
 
-echo "==> Bootstrapping ns-dotfiles..."
+echo "==> Bootstrapping dotfiles..."
 
 # On Linux, update apt cache before any installs
 if [[ -f /etc/os-release ]]; then

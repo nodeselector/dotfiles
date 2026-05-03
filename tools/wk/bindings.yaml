@@ -90,22 +90,17 @@
     - key: e
       desc: edit dotfiles
       type: command
-      buffer: 'cd ~/ghq/github.com/nodeselector/ns-dotfiles && nvim'
+      buffer: 'cd ~/ghq/github.com/nodeselector/dotfiles && nvim'
       accept: true
     - key: s
       desc: setup (link+install)
       type: command
-      buffer: 'cd ~/ghq/github.com/nodeselector/ns-dotfiles && make setup'
+      buffer: 'cd ~/ghq/github.com/nodeselector/dotfiles && make setup'
       accept: true
     - key: l
       desc: link only
       type: command
-      buffer: 'cd ~/ghq/github.com/nodeselector/ns-dotfiles && make setup-link'
-      accept: true
-    - key: b
-      desc: backup prefs
-      type: command
-      buffer: 'cd ~/ghq/github.com/nodeselector/ns-dotfiles && make backup-prefs'
+      buffer: 'cd ~/ghq/github.com/nodeselector/dotfiles && make setup-link'
       accept: true
     - key: r
       desc: reload shell

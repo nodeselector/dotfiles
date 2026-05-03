@@ -1,24 +1,24 @@
 # Services
 
-Docker Compose-based self-hosted services managed via `ns-dotfiles services`.
+Docker Compose-based self-hosted services managed via `dotfiles services`.
 
 ## Usage
 
 ```bash
 # List available services
-ns-dotfiles services list
+dotfiles services list
 
 # Start a service
-ns-dotfiles services up dozzle
+dotfiles services up dozzle
 
 # Stop a service
-ns-dotfiles services down dozzle
+dotfiles services down dozzle
 
 # View status
-ns-dotfiles services status
+dotfiles services status
 
 # View logs
-ns-dotfiles services logs dozzle
+dotfiles services logs dozzle
 ```
 
 ## Available Services

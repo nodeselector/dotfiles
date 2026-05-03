@@ -1,4 +1,4 @@
-# Copilot Instructions for ns-dotfiles
+# Copilot Instructions for dotfiles
 
 ## Repository Purpose
 Personal dotfiles managed via [punch](https://github.com/nodeselector/punch), a cross-platform dotfile manager. Supports macOS, Linux, and GitHub Codespaces with declarative configuration in `dot.yaml` files.
@@ -9,7 +9,7 @@ Personal dotfiles managed via [punch](https://github.com/nodeselector/punch), a 
   - `dev/` — development tools (brew, git, nvm, rust, gvm, vscode, lazydocker, etc.)
   - `terminal/` — shell configs (zsh, tmux, nvim, starship, iterm, env)
   - `gui/` — macOS GUI configs (aerospace, hammerspoon)
-  - `tools/` — miscellaneous utilities (wk, ns-dotfiles)
+  - `tools/` — miscellaneous utilities (wk, dotfiles)
   - `services/` — Docker Compose self-hosted services
   - `plugins/` — cloned plugin repos (gitignored, managed by `script/clone-plugins`)
 - **Platform-specific configs**: `dot.yaml` supports `darwin:`, `linux:`, and `global:` sections
@@ -92,7 +92,7 @@ The setup handles PATH updates across multiple installation stages:
 ## Plugin System
 
 ### Overview
-Plugins extend ns-dotfiles with configs from external repos. Each plugin is cloned into the repo-local `plugins/<owner>/<repo>` directory by `script/clone-plugins`.
+Plugins extend dotfiles with configs from external repos. Each plugin is cloned into the repo-local `plugins/<owner>/<repo>` directory by `script/clone-plugins`.
 
 ### Plugin Registry
 Plugins are declared in `plugin.yaml` at the repo root:
@@ -137,7 +137,7 @@ The `plugins/` directory is gitignored except for README.md and .gitignore.
 ## CRITICAL: Never Edit Target Files Directly
 **DO NOT** edit files at their symlink targets (e.g., `~/.config/nvim/init.lua`, `~/.zshrc`).
 
-**ALWAYS** edit the source file in ns-dotfiles (e.g., `terminal/nvim/init.lua`, `terminal/zsh/.zshrc`).
+**ALWAYS** edit the source file in dotfiles (e.g., `terminal/nvim/init.lua`, `terminal/zsh/.zshrc`).
 
 Changes to source files take effect immediately since they're symlinked.
 
@@ -164,7 +164,7 @@ Changes to source files take effect immediately since they're symlinked.
 - Check `DOTFILES_DIR` is exported correctly during install (used by `.defaults.yaml` brew helper)
 
 ### Updating Tool Configs
-1. Edit files in `ns-dotfiles/<category>/<tool>/`
+1. Edit files in `dotfiles/<category>/<tool>/`
 2. Changes take effect immediately (files are symlinked)
 3. If modifying `dot.yaml`, run `./script/setup --install` to re-apply
 

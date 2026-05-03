@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# ns-dotfiles console
+# dotfiles console
 
 if command -v python3 >/dev/null 2>&1; then
   SCRIPT_PATH=$(python3 - <<'PY' "$0"
@@ -23,7 +23,7 @@ if command -v tput >/dev/null 2>&1; then
 fi
 
 header() {
-  printf "\n${BOLD}🌱 ns-dotfiles console${RESET}\n\n"
+  printf "\n${BOLD}🌱 dotfiles console${RESET}\n\n"
 }
 
 run() {
@@ -33,7 +33,7 @@ run() {
 
 help() {
   cat <<EOF
-Usage: ns-dotfiles [command]
+Usage: dotfiles [command]
 Commands:
   bootstrap    Run script/bootstrap
   setup        Run script/setup (link only)
@@ -153,7 +153,7 @@ services_cmd() {
     up|start)
       if [[ -z "$name" ]]; then
         echo "${RED}Error: service name required${RESET}"
-        echo "Usage: ns-dotfiles services up <name>"
+        echo "Usage: dotfiles services up <name>"
         return 1
       fi
       if [[ ! -f "$services_dir/$name/docker-compose.yml" ]]; then
@@ -166,7 +166,7 @@ services_cmd() {
     down|stop)
       if [[ -z "$name" ]]; then
         echo "${RED}Error: service name required${RESET}"
-        echo "Usage: ns-dotfiles services down <name>"
+        echo "Usage: dotfiles services down <name>"
         return 1
       fi
       if [[ ! -f "$services_dir/$name/docker-compose.yml" ]]; then
@@ -207,7 +207,7 @@ services_cmd() {
       ;;
     *)
       echo "${RED}Unknown services subcommand: $subcmd${RESET}"
-      echo "Usage: ns-dotfiles services [list|up|down|status|logs|restart] [name]"
+      echo "Usage: dotfiles services [list|up|down|status|logs|restart] [name]"
       return 1
       ;;
   esac

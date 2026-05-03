@@ -1,6 +1,6 @@
 global:
   links:
-    ../../script/console: ~/.local/bin/ns-dotfiles
+    ../../script/console: ~/.local/bin/dotfiles
 
 darwin:
   installs: brew install gum

@@ -1,8 +1,8 @@
 # Dozzle - Real-time Docker log viewer
 # https://github.com/amir20/dozzle
 #
-# Start: ns-dotfiles services up dozzle
-# Stop:  ns-dotfiles services down dozzle
+# Start: dotfiles services up dozzle
+# Stop:  dotfiles services down dozzle
 # UI:    http://localhost:9999
 
 services:
