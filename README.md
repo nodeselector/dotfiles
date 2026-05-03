@@ -53,13 +53,3 @@ plugins:
 ```
 
 `script/clone-plugins` clones them into `plugins/`. Punch discovers their `dot.yaml` files automatically.
-
-## Highlights
-
-**Terminal** -- Tokyo Night everywhere. Ctrl-A prefix for tmux. Vim-style pane navigation with `christoomey/vim-tmux-navigator`. FZF scrollback search, keybinding cheatsheet, and a persistent scratch popup.
-
-**Editor** -- LazyVim with Telescope, neo-tree, octo.nvim, and auto-updating Mason packages. Symlink-aware file pickers.
-
-**Shell** -- Modular `~/.zshrc.d/*.zsh` pattern. Lazy-loaded nvm, gvm, and bun. Starship prompt with vim mode indicator.
-
-**Window Management** -- AeroSpace tiling with vim-style alt-hjkl focus/move. Hammerspoon for ControlEscape (tap Ctrl = Esc, hold = Ctrl) and app window toggles.
