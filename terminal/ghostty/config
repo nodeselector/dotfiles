@@ -1,0 +1,12 @@
+# Ghostty configuration
+# Managed by dotfiles
+#
+# Standard config location: ~/.config/ghostty/config
+
+# SSH compatibility: wrap the ssh command to auto-set TERM=xterm-256color
+# on remotes that lack xterm-ghostty terminfo, and install our terminfo
+# on hosts that support it. Keeps full xterm-ghostty features locally.
+#
+# Default features (cursor, title, path) are kept. We add ssh-env and
+# ssh-terminfo for remote host compatibility.
+shell-integration-features = cursor,sudo,title,path,ssh-env,ssh-terminfo

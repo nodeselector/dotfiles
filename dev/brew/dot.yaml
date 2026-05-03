@@ -1,0 +1,12 @@
+installs:
+    cmd: >
+        bash -c '
+          if ! test brew; then
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          else
+            echo "brew already installed"
+          fi
+        '
+
+links:
+  brew.zshrc.zsh: ~/.zshrc.d/brew.zshrc.zsh

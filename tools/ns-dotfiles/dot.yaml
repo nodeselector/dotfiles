@@ -1,0 +1,6 @@
+global:
+  links:
+    ../../script/console: ~/.local/bin/ns-dotfiles
+
+darwin:
+  installs: brew install gum

@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# Bootstrap ns-dotfiles: install punch, link configs, install tools
+set -eou pipefail
+
+echo "==> Bootstrapping ns-dotfiles..."
+
+# On Linux, update apt cache before any installs
+if [[ -f /etc/os-release ]]; then
+  echo "==> Updating package cache..."
+  sudo apt-get update -qq || true
+fi
+
+# Install yq if not present (needed for parsing YAML configs)
+if ! command -v yq &> /dev/null; then
+  echo "==> Installing yq..."
+  if [[ "$(uname)" == "Darwin" ]]; then
+    brew install yq
+  else
+    sudo apt-get install -y yq || sudo snap install yq
+  fi
+fi
+
+# Install punch (copy-based dotfile manager)
+if command -v punch &>/dev/null; then
+  echo "==> punch is already installed"
+else
+  echo "==> Installing punch..."
+  mkdir -p "$HOME/.local/bin"
+
+  _os="$(uname -s | tr '[:upper:]' '[:lower:]')"
+  _arch="$(uname -m)"
+  case "$_arch" in
+    x86_64)       _arch="amd64" ;;
+    aarch64|arm64) _arch="arm64" ;;
+  esac
+  _asset="punch-${_os}-${_arch}.tar.gz"
+  _url="https://github.com/nodeselector/punch/releases/latest/download/${_asset}"
+
+  if curl -fSL --retry 3 -o "/tmp/${_asset}" "$_url" 2>/dev/null; then
+    tar -xzf "/tmp/${_asset}" -C "$HOME/.local/bin/"
+    chmod +x "$HOME/.local/bin/punch"
+    rm -f "/tmp/${_asset}"
+    echo "==> punch installed to ~/.local/bin/punch"
+  else
+    echo "==> Release download failed, building from source..."
+    if ! command -v go &>/dev/null; then
+      echo "ERROR: go is required to build punch from source" >&2
+      exit 1
+    fi
+    PUNCH_REPO="$HOME/ghq/github.com/nodeselector/punch"
+    if [ ! -d "$PUNCH_REPO" ]; then
+      if command -v ghq &>/dev/null; then
+        ghq get nodeselector/punch
+      else
+        mkdir -p "$(dirname "$PUNCH_REPO")"
+        git clone https://github.com/nodeselector/punch.git "$PUNCH_REPO"
+      fi
+    fi
+    (cd "$PUNCH_REPO" && go build -o "$HOME/.local/bin/punch" .)
+    echo "==> punch built from source"
+  fi
+  export PATH="$HOME/.local/bin:$PATH"
+fi
+
+# Get repo root for calling setup
+repo_root=$(cd "$(dirname "$0")/.." && pwd)
+
+# Clone and link plugins
+echo ""
+echo "==> Cloning plugins..."
+if ! "$repo_root/script/clone-plugins"; then
+  echo "ERROR: Plugin setup failed" >&2
+  exit 1
+fi
+
+# Run full setup with installations
+echo "==> Running setup..."
+"$repo_root/script/setup" --install
+
+echo ""
+echo "==> Bootstrap complete!"
+echo "==> Run: exec \$SHELL (to reload shell and pick up changes)"

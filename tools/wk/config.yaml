@@ -1,0 +1,25 @@
+---
+timeout: 10000
+symbols:
+  prompt: '❯ '
+  group: '+' 
+  separator: ' → '
+  breadcrumb: ' '
+colors:
+  prompt: 5
+  inputKeys:
+    color: 8
+    attrs: [dim]
+  breadcrumb:
+    color: 8
+    attrs: [dim]
+  lastInputKey:
+    color: 6
+    attrs: [underline]
+  bindingKey: 5
+  separator:
+    color: 5
+    attrs: [dim]
+  group: 3
+  bindingIcon: 8
+  bindingDescription: 8

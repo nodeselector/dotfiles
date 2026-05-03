@@ -1,0 +1,4 @@
+<type:build|ci|docs|feat|fix|perf|refactor|test>(<scope>): Summary in present tense. Not capitalized. No period at the end.
+# Co-authored-by name <user@users.noreply.github.com>
+# see angular for overview of great commit messages:
+# https://github.com/angular/angular/blob/master/CONTRIBUTING.md#commit

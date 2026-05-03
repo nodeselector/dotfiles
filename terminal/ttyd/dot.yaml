@@ -1,0 +1,7 @@
+darwin:
+  installs: $DOTFILES_DIR/dev/brew/brew-install-idempotent ttyd
+linux:
+  installs: echo "ttyd not needed on Linux - skipping"
+darwin|linux:
+  links:
+    ttyd.zshrc.zsh: ~/.zshrc.d/ttyd.zshrc.zsh

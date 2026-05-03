@@ -1,0 +1,23 @@
+{
+  "Profiles" : [
+    {
+      "Has Hotkey" : false,
+      "Rewritable" : true,
+      "Window Type" : 1,
+      "Non Ascii Font" : "MonaspiceNeNFM-Regular 11",
+      "Blur Radius" : 0.10000000000000001,
+      "Blend" : 0.49700615875912407,
+      "Guid" : "EF56683E-FF62-482A-A5A4-4345EE0B3593",
+      "Name" : "Dotfiles Guake",
+      "Transparency" : 0.13567941837639305,
+      "Mouse Reporting" : false,
+      "Use Separate Colors for Light and Dark Mode" : false
+    },
+    {
+      "Use Separate Colors for Light and Dark Mode" : false,
+      "Name" : "Default",
+      "Rewritable" : true,
+      "Guid" : "53D012C0-31AC-44CD-861A-F9D97AC559F8"
+    }
+  ]
+}

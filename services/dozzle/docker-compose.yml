@@ -1,0 +1,18 @@
+# Dozzle - Real-time Docker log viewer
+# https://github.com/amir20/dozzle
+#
+# Start: ns-dotfiles services up dozzle
+# Stop:  ns-dotfiles services down dozzle
+# UI:    http://localhost:9999
+
+services:
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:9999:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - DOZZLE_NO_ANALYTICS=1

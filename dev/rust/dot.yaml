@@ -1,0 +1,4 @@
+installs:
+  cmd: bash -c 'if ! command -v rustup &>/dev/null; then curl https://sh.rustup.rs -sSf | sh -s -- -y; else echo "rustup already installed"; fi'
+  depends:
+    - ../dev/cmake

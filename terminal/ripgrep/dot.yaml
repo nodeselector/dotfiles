@@ -1,0 +1,4 @@
+darwin:
+  installs: $DOTFILES_DIR/dev/brew/brew-install-idempotent ripgrep
+linux:
+  installs: sudo apt install -y ripgrep

@@ -1,0 +1,281 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ns-dotfiles console
+
+if command -v python3 >/dev/null 2>&1; then
+  SCRIPT_PATH=$(python3 - <<'PY' "$0"
+import os, sys
+print(os.path.realpath(sys.argv[1]))
+PY
+)
+else
+  SCRIPT_PATH="$(cd "$(dirname "$0")" && pwd -P)/$(basename "$0")"
+fi
+SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd -P)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd -P)"
+
+BOLD=""; RESET=""; GREEN=""; BLUE=""; YELLOW=""; RED=""
+if command -v tput >/dev/null 2>&1; then
+  if [[ $(tput colors) -ge 8 ]]; then
+    BOLD="$(tput bold)"; RESET="$(tput sgr0)"; GREEN="$(tput setaf 2)"; BLUE="$(tput setaf 4)"; YELLOW="$(tput setaf 3)"; RED="$(tput setaf 1)"
+  fi
+fi
+
+header() {
+  printf "\n${BOLD}🌱 ns-dotfiles console${RESET}\n\n"
+}
+
+run() {
+  printf "${BLUE}▶${RESET} %s\n" "$*"
+  (cd "$REPO_ROOT" && eval "$@")
+}
+
+help() {
+  cat <<EOF
+Usage: ns-dotfiles [command]
+Commands:
+  bootstrap    Run script/bootstrap
+  setup        Run script/setup (link only)
+  install      Run script/setup --install (link + installs)
+  plugins      Run script/clone-plugins
+  update       git pull --rebase origin main
+  status       git status -sb
+  services     Manage docker-compose services
+  path         Print repo root
+  menu         Interactive menu (default)
+  help         Show this help
+
+Services subcommands:
+  services list              List available services
+  services up <name>         Start a service
+  services down <name>       Stop a service
+  services status [name]     Show status of services
+  services logs <name>       Tail logs for a service
+  services restart <name>    Restart a service
+EOF
+}
+
+services_menu() {
+  local services_dir="$REPO_ROOT/services"
+  local choice svc_name
+  
+  # Get list of available services
+  local services=()
+  for d in "$services_dir"/*/; do
+    if [[ -f "$d/docker-compose.yml" ]]; then
+      services+=("$(basename "$d")")
+    fi
+  done
+  
+  if [[ ${#services[@]} -eq 0 ]]; then
+    echo "${YELLOW}No services found in $services_dir${RESET}"
+    return 0
+  fi
+  
+  # Select action
+  local action
+  if command -v gum >/dev/null 2>&1; then
+    action=$(gum choose "up (start)" "down (stop)" "restart" "status" "logs" "back" < /dev/tty) || return 0
+    action="${action%% *}"  # Extract first word
+  else
+    echo ""
+    echo "${BOLD}Services menu:${RESET}"
+    echo "1) up (start)"
+    echo "2) down (stop)"
+    echo "3) restart"
+    echo "4) status"
+    echo "5) logs"
+    echo "0) back"
+    read -rp "Choose action [0-5]: " choice
+    case "$choice" in
+      1) action="up" ;;
+      2) action="down" ;;
+      3) action="restart" ;;
+      4) action="status" ;;
+      5) action="logs" ;;
+      0|"") return 0 ;;
+      *) echo "${RED}Invalid choice${RESET}"; return 0 ;;
+    esac
+  fi
+  
+  [[ "$action" == "back" ]] && return 0
+  
+  # Status can run without selecting a specific service
+  if [[ "$action" == "status" ]]; then
+    services_cmd status
+    return 0
+  fi
+  
+  # Select service
+  if command -v gum >/dev/null 2>&1; then
+    svc_name=$(gum choose "${services[@]}" "back" < /dev/tty) || return 0
+  else
+    echo ""
+    echo "${BOLD}Select service:${RESET}"
+    local i=1
+    for svc in "${services[@]}"; do
+      echo "$i) $svc"
+      ((i++))
+    done
+    echo "0) back"
+    read -rp "Choose service [0-$((${#services[@]}))]: " choice
+    if [[ "$choice" == "0" || -z "$choice" ]]; then
+      return 0
+    elif [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#services[@]} )); then
+      svc_name="${services[$((choice-1))]}"
+    else
+      echo "${RED}Invalid choice${RESET}"
+      return 0
+    fi
+  fi
+  
+  [[ "$svc_name" == "back" ]] && return 0
+  
+  services_cmd "$action" "$svc_name"
+}
+
+services_cmd() {
+  local services_dir="$REPO_ROOT/services"
+  local subcmd="${1:-list}"
+  local name="${2:-}"
+  
+  case "$subcmd" in
+    list|ls)
+      echo "${BOLD}Available services:${RESET}"
+      for d in "$services_dir"/*/; do
+        if [[ -f "$d/docker-compose.yml" ]]; then
+          local svc_name=$(basename "$d")
+          echo "  - $svc_name"
+        fi
+      done
+      ;;
+    up|start)
+      if [[ -z "$name" ]]; then
+        echo "${RED}Error: service name required${RESET}"
+        echo "Usage: ns-dotfiles services up <name>"
+        return 1
+      fi
+      if [[ ! -f "$services_dir/$name/docker-compose.yml" ]]; then
+        echo "${RED}Error: service '$name' not found${RESET}"
+        return 1
+      fi
+      echo "${GREEN}Starting $name...${RESET}"
+      docker compose -f "$services_dir/$name/docker-compose.yml" up -d
+      ;;
+    down|stop)
+      if [[ -z "$name" ]]; then
+        echo "${RED}Error: service name required${RESET}"
+        echo "Usage: ns-dotfiles services down <name>"
+        return 1
+      fi
+      if [[ ! -f "$services_dir/$name/docker-compose.yml" ]]; then
+        echo "${RED}Error: service '$name' not found${RESET}"
+        return 1
+      fi
+      echo "${YELLOW}Stopping $name...${RESET}"
+      docker compose -f "$services_dir/$name/docker-compose.yml" down
+      ;;
+    restart)
+      if [[ -z "$name" ]]; then
+        echo "${RED}Error: service name required${RESET}"
+        return 1
+      fi
+      services_cmd down "$name" && services_cmd up "$name"
+      ;;
+    status|ps)
+      if [[ -n "$name" ]]; then
+        docker compose -f "$services_dir/$name/docker-compose.yml" ps
+      else
+        echo "${BOLD}Service status:${RESET}"
+        for d in "$services_dir"/*/; do
+          if [[ -f "$d/docker-compose.yml" ]]; then
+            local svc_name=$(basename "$d")
+            echo ""
+            echo "${BLUE}[$svc_name]${RESET}"
+            docker compose -f "$d/docker-compose.yml" ps --format "table {{.Name}}\t{{.Status}}" 2>/dev/null || echo "  (not running)"
+          fi
+        done
+      fi
+      ;;
+    logs)
+      if [[ -z "$name" ]]; then
+        echo "${RED}Error: service name required${RESET}"
+        return 1
+      fi
+      docker compose -f "$services_dir/$name/docker-compose.yml" logs -f --tail=100
+      ;;
+    *)
+      echo "${RED}Unknown services subcommand: $subcmd${RESET}"
+      echo "Usage: ns-dotfiles services [list|up|down|status|logs|restart] [name]"
+      return 1
+      ;;
+  esac
+}
+
+main_menu() {
+  local choice
+  if command -v gum >/dev/null 2>&1; then
+    choice=$(gum choose "bootstrap" "setup" "install" "plugins" "update" "status" "services" "path" "help" "quit" < /dev/tty) || exit 0
+  else
+    echo "1) bootstrap"
+    echo "2) setup (link only)"
+    echo "3) install (link + installs)"
+    echo "4) plugins (clone/update)"
+    echo "5) update (git pull --rebase origin main)"
+    echo "6) status"
+    echo "7) services"
+    echo "8) path"
+    echo "9) help"
+    echo "0) quit"
+    read -rp "Choose an option [0-9]: " choice
+    case "$choice" in
+      1) choice="bootstrap" ;;
+      2) choice="setup" ;;
+      3) choice="install" ;;
+      4) choice="plugins" ;;
+      5) choice="update" ;;
+      6) choice="status" ;;
+      7) choice="services" ;;
+      8) choice="path" ;;
+      9) choice="help" ;;
+      0) choice="quit" ;;
+      *) echo "${RED}Invalid choice${RESET}"; return 0 ;;
+    esac
+  fi
+  dispatch "$choice"
+}
+
+dispatch() {
+  local cmd="$1"
+  shift 2>/dev/null || true
+  case "$cmd" in
+    bootstrap) run ./script/bootstrap ;;
+    setup) run ./script/setup ;;
+    install) run ./script/setup --install ;;
+    plugins) run ./script/clone-plugins ;;
+    update) run git pull --rebase origin main ;;
+    status) run git status -sb ;;
+    services)
+      if [[ $# -eq 0 ]]; then
+        services_menu
+      else
+        services_cmd "$@"
+      fi
+      ;;
+    path) echo "$REPO_ROOT" ;;
+    help) help ;;
+    menu|console|'') header; while true; do main_menu || break; done ;;
+    quit|exit) exit 0 ;;
+    *) echo "Unknown command: $cmd"; help; exit 1 ;;
+  esac
+}
+
+if [[ $# -gt 0 ]]; then
+  dispatch "$@"
+else
+  header
+  while true; do
+    main_menu || break
+  done
+fi

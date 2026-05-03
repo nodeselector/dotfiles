@@ -1,0 +1,18 @@
+darwin:
+  installs: $DOTFILES_DIR/dev/brew/brew-install-idempotent tmux
+
+global:
+  links:
+    .tmux.conf: ~/.tmux.conf
+    tmux.zshrc.zsh: ~/.zshrc.d/tmux.zshrc.zsh
+    tmux-fzf-scrollback.sh: ~/.local/bin/tmux-fzf-scrollback
+    tmux-fzf-keys.sh: ~/.local/bin/tmux-fzf-keys
+    tmux-swap-pane.sh: ~/.local/bin/tmux-swap-pane
+    session-switch.sh: ~/.local/bin/session-switch
+  installs:
+    cmd: >
+      bash -c '
+        if ! [[ -d $HOME/.tpm ]]; then
+          git clone https://github.com/tmux-plugins/tpm $HOME/.tpm
+        fi
+        '

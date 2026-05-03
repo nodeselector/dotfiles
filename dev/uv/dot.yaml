@@ -1,0 +1,4 @@
+darwin:
+  installs: $DOTFILES_DIR/dev/brew/brew-install-idempotent uv
+linux:
+  installs: bash -c 'curl -LsSf https://astral.sh/uv/install.sh | sh'

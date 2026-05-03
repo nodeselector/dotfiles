@@ -1,0 +1,11 @@
+darwin:
+  links:
+    iterm2.zshrc.zsh: ~/.zshrc.d/iterm2.zshrc.zsh
+    profile.json: ~/Library/Application Support/iTerm2/DynamicProfiles/dotfiles-profile.json
+  installs:
+    cmd: |
+      $DOTFILES_DIR/dev/brew/brew-install-idempotent --cask iterm2
+      # Set Dotfiles Default profile as iTerm's default
+      defaults write com.googlecode.iterm2 "Default Bookmark Guid" "53D012C0-31AC-44CD-861A-F9D97AC559F8"
+    depends:
+      - /terminal/fonts

@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+# Clone dotfiles plugins listed in .dotz-plugins.yaml
+# Plugins are cloned into repo-local .plugins/<owner>/<repo>
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_ROOT="$(cd "$(dirname "$SCRIPT_DIR")" && pwd)"
+PLUGINS_CONFIG="$DOTFILES_ROOT/plugin.yaml"
+PLUGINS_DIR="$DOTFILES_ROOT/plugins"
+
+# Ensure gh and punch are on PATH if available
+PATH="$HOME/.local/bin:$PATH"
+
+# Optional PAT for private repos (e.g., from Codespaces secrets)
+# Priority: DOTFILES > DOTFILES_PLUGINS_PAT > GH_TOKEN
+export GH_TOKEN="${DOTFILES:-${DOTFILES_PLUGINS_PAT:-${GH_TOKEN:-}}}"
+
+# Note: No symlinks or plugin linking; we only clone.
+
+echo "==> Cloning plugins from plugin.yaml..."
+
+# Ensure plugins directory exists
+mkdir -p "$PLUGINS_DIR"
+
+# Helper to parse github.com/owner/repo format
+parse_repo_path() {
+  local path="$1"
+  if [[ ! "$path" =~ ^github\.com/[^/]+/[^/]+$ ]]; then
+    echo "ERROR: Invalid repo format. Expected 'github.com/owner/repo', got '$path'" >&2
+    return 1
+  fi
+  echo "$path"
+}
+
+update_plugin_repo() {
+  local repo_dir="$1"
+
+  if [[ ! -d "$repo_dir/.git" ]]; then
+    echo "    Skipping update (not a git repo)"
+    return 0
+  fi
+
+  if ! git -C "$repo_dir" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "    Skipping update (not a git worktree)"
+    return 0
+  fi
+
+  if ! git -C "$repo_dir" diff --quiet || ! git -C "$repo_dir" diff --quiet --cached; then
+    echo "    Skipping update (local changes present)"
+    return 0
+  fi
+
+  echo "    Updating (git pull --ff-only)..."
+  if ! git -C "$repo_dir" fetch --tags --prune; then
+    echo "    WARNING: fetch failed for $repo_dir" >&2
+    return 0
+  fi
+  if ! git -C "$repo_dir" pull --ff-only --no-rebase; then
+    echo "    WARNING: pull failed (non-fast-forward or other issue) for $repo_dir" >&2
+    return 0
+  fi
+}
+
+# Clone a single plugin into .plugins
+clone_and_link_plugin() {
+  local repo_path="$1"
+  local owner="$(echo "$repo_path" | cut -d/ -f2)"
+  local repo_name="$(echo "$repo_path" | cut -d/ -f3)"
+  local plugin_dest="$PLUGINS_DIR/$owner/$repo_name"
+  
+  echo "  Plugin: $repo_name"
+  
+  # Clone if not exists (gh clone respects GH_TOKEN and auth config)
+  if [[ ! -d "$plugin_dest" ]]; then
+    echo "    Cloning to $plugin_dest..."
+    if ! gh repo clone "$repo_path" "$plugin_dest" -- --filter=blob:none 2>/dev/null; then
+      # Fallback to git with https
+      if ! git clone --filter=blob:none "https://github.com/$repo_path.git" "$plugin_dest" 2>/dev/null; then
+        # If git clone failed and we have a token, try with token in URL
+        if [[ -n "${GH_TOKEN:-}" ]]; then
+          echo "    Retrying with authentication token..."
+          if ! git clone --filter=blob:none "https://${GH_TOKEN}@github.com/$repo_path.git" "$plugin_dest"; then
+            echo "ERROR: Failed to clone $repo_path (even with token)" >&2
+            return 1
+          fi
+        else
+          echo "ERROR: Failed to clone $repo_path (consider setting DOTFILES, DOTFILES_PLUGINS_PAT, or GH_TOKEN)" >&2
+          return 1
+        fi
+      fi
+    fi
+  else
+    echo "    Already cloned at $plugin_dest"
+    update_plugin_repo "$plugin_dest" || true
+  fi
+
+  # Done. No linking; contents remain untracked by git except README.
+}
+
+# Skip if no plugins configured
+if [[ ! -f "$PLUGINS_CONFIG" ]]; then
+  echo "  No plugin.yaml found, skipping plugins"
+  exit 0
+fi
+
+# Check for yq
+if ! command -v yq &>/dev/null; then
+  echo "ERROR: yq is required but not installed. Install with: brew install yq" >&2
+  exit 1
+fi
+
+# Parse plugins from YAML using yq
+plugin_count=0
+while IFS= read -r plugin_repo; do
+  [[ -z "$plugin_repo" ]] && continue
+  
+  if ! clone_and_link_plugin "$plugin_repo"; then
+    exit 1
+  fi
+  
+  ((++plugin_count))
+done < <(yq -r '.plugins[]' "$PLUGINS_CONFIG")
+
+echo "==> $plugin_count plugin(s) cloned"
+echo "==> Cloning complete into $(basename "$PLUGINS_DIR")/"

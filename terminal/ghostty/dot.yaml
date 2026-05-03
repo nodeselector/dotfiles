@@ -1,0 +1,3 @@
+darwin:
+  links:
+    config: ~/.config/ghostty/config

@@ -1,0 +1,4 @@
+installs:
+  cmd: if [[ $CODESPACES == true ]]; then sudo chsh --shell /usr/bin/zsh $(whoami); fi
+links:
+  vscode.zshrc.zsh: ~/.zshrc.d/vscode.zshrc.zsh

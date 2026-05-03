@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root=$(git rev-parse --show-toplevel)
+
+if [[ ${CODESPACES:-false} == "true" ]]; then
+  dotfiles_dir=/workspaces/.codespaces/.persistedshare/dotfiles
+else
+  dotfiles_dir="$repo_root"
+fi
+
+LINK_ONLY=false
+for arg in "$@"; do
+  case "$arg" in
+    --link-only) LINK_ONLY=true ;;
+  esac
+done
+
+# Helper function to refresh PATH with common tool locations
+refresh_path() {
+  export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH
+  export PATH=$HOME/.local/bin:$PATH
+
+  export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+  if [[ ! -s "$NVM_DIR/nvm.sh" && -s "/usr/local/share/nvm/nvm.sh" ]]; then
+    export NVM_DIR="/usr/local/share/nvm"
+  fi
+  if [[ -s "$NVM_DIR/nvm.sh" ]]; then
+    source "$NVM_DIR/nvm.sh" --no-use
+  fi
+
+  if [[ -f "$HOME/.cargo/env" ]]; then
+    source "$HOME/.cargo/env"
+  fi
+}
+
+# Ensure punch is available
+if ! command -v punch &>/dev/null; then
+  echo "==> punch not found, installing from release..."
+  mkdir -p "$HOME/.local/bin"
+
+  _os="$(uname -s | tr '[:upper:]' '[:lower:]')"
+  _arch="$(uname -m)"
+  case "$_arch" in
+    x86_64)       _arch="amd64" ;;
+    aarch64|arm64) _arch="arm64" ;;
+  esac
+  _asset="punch-${_os}-${_arch}.tar.gz"
+  _url="https://github.com/nodeselector/punch/releases/latest/download/${_asset}"
+
+  if curl -fSL --retry 3 -o "/tmp/${_asset}" "$_url" 2>/dev/null; then
+    tar -xzf "/tmp/${_asset}" -C "$HOME/.local/bin/"
+    chmod +x "$HOME/.local/bin/punch"
+    rm -f "/tmp/${_asset}"
+    echo "==> punch installed to ~/.local/bin/punch"
+  else
+    echo "warning: could not download punch from ${_url}" >&2
+    echo "  falling back to source build..." >&2
+    if command -v go &>/dev/null; then
+      PUNCH_REPO="$HOME/ghq/github.com/nodeselector/punch"
+      if [ ! -d "$PUNCH_REPO" ]; then
+        if command -v ghq &>/dev/null; then
+          ghq get nodeselector/punch
+        else
+          mkdir -p "$(dirname "$PUNCH_REPO")"
+          git clone https://github.com/nodeselector/punch.git "$PUNCH_REPO"
+        fi
+      fi
+      (cd "$PUNCH_REPO" && go build -o "$HOME/.local/bin/punch" .)
+      echo "==> punch built from source"
+    else
+      echo "error: cannot install punch (no binary release for ${_os}-${_arch}, no go toolchain)" >&2
+      exit 1
+    fi
+  fi
+  export PATH="$HOME/.local/bin:$PATH"
+fi
+
+# Always link first (fast and idempotent)
+echo "==> Copying dotfiles..."
+punch --dotfiles "$dotfiles_dir" link --force
+
+if $LINK_ONLY; then
+  exit 0
+fi
+
+echo "==> Installing dependencies (this may take a while)..."
+
+echo "==> Pass 1: Installing core tools..."
+refresh_path
+export DOTFILES_DIR="$dotfiles_dir"
+punch --dotfiles "$dotfiles_dir" install || true
+
+echo "==> Refreshing PATH after core tools..."
+refresh_path
+
+echo "==> Pass 2: Installing remaining tools..."
+punch --dotfiles "$dotfiles_dir" install
+
+echo "==> Installation complete!"
+echo ""
+echo "To pick up all changes, run: exec \$SHELL"

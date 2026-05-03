@@ -1,0 +1,6 @@
+darwin:
+  links:
+    aerospace.toml: ~/.config/aerospace/aerospace.toml
+    aerospace.zshrc.zsh: ~/.zshrc.d/aerospace.zshrc.zsh
+    newiterm.sh: ~/.newiterm.sh
+  installs: $DOTFILES_DIR/dev/brew/brew-install-idempotent --cask nikitabobko/tap/aerospace

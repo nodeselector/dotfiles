@@ -1,0 +1,12 @@
+darwin:
+  links:
+    init.lua: ~/.hammerspoon/init.lua
+    window-toggle.lua: ~/.hammerspoon/window-toggle.lua
+  installs: >
+    bash -c '
+      $DOTFILES_DIR/dev/brew/brew-install-idempotent hammerspoon
+      mkdir -p $HOME/.hammerspoon/Spoons
+      if ! [[ -d $HOME/.hammerspoon/Spoons/ControlEscape.spoon ]]; then
+          git clone https://github.com/jasonrudolph/ControlEscape.spoon.git $HOME/.hammerspoon/Spoons/ControlEscape.spoon
+      fi
+    '

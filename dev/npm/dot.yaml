@@ -1,0 +1,7 @@
+installs:
+  cmd: ~/.install_npm.sh
+  depends:
+    - ../terminal/zsh
+    - nvm
+links:
+  install.sh: ~/.install_npm.sh

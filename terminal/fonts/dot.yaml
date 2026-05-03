@@ -1,0 +1,9 @@
+darwin:
+  installs:
+    cmd: |
+      # Tap homebrew fonts
+      brew tap homebrew/cask-fonts 2>/dev/null || true
+      # Install Monaspace Nerd Font (primary terminal font)
+      $DOTFILES_DIR/dev/brew/brew-install-idempotent --cask font-monaspice-nerd-font
+      # Install Fira Mono Nerd Font (fallback / legacy)
+      $DOTFILES_DIR/dev/brew/brew-install-idempotent --cask font-fira-mono-nerd-font

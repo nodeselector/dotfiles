@@ -1,0 +1,4 @@
+linux:
+  installs: bash -c 'sudo apt-get update -qq && sudo apt install -y {{ name }}'
+darwin:
+  installs: $DOTFILES_DIR/dev/brew/brew-install-idempotent {{ name }}

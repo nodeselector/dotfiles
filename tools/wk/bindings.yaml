@@ -1,0 +1,114 @@
+---
+# ghq / repo management
+- key: g
+  desc: Repos (ghq)
+  type: bindings
+  bindings:
+    - key: l
+      desc: cd to repo
+      type: command
+      buffer: 'ghq_change_dir'
+      accept: true
+    - key: n
+      desc: open in nvim
+      type: command
+      buffer: 'ghq_open_nvim'
+      accept: true
+    - key: c
+      desc: open in vscode
+      type: command
+      buffer: 'ghq_open_vscode'
+      accept: true
+    - key: r
+      desc: refresh cache
+      type: command
+      buffer: 'ghq_refresh_cache'
+      accept: true
+
+# git operations
+- key: v
+  desc: Git
+  type: bindings
+  bindings:
+    - key: s
+      desc: status
+      type: command
+      buffer: 'git status'
+      accept: true
+    - key: d
+      desc: diff
+      type: command
+      buffer: 'git diff'
+      accept: true
+    - key: l
+      desc: log (graph)
+      type: command
+      buffer: 'git log --oneline --graph -20'
+      accept: true
+    - key: p
+      desc: Push/Pull
+      type: bindings
+      bindings:
+        - key: p
+          desc: push
+          type: command
+          buffer: 'git push'
+          accept: true
+        - key: f
+          desc: push --force-with-lease
+          type: command
+          buffer: 'git push --force-with-lease'
+          accept: true
+        - key: l
+          desc: pull
+          type: command
+          buffer: 'git pull'
+          accept: true
+    - key: a
+      desc: add -p (patch)
+      type: command
+      buffer: 'git add -p'
+      accept: true
+    - key: c
+      desc: commit
+      type: command
+      buffer: 'git commit'
+      accept: true
+
+# scripts to rule them all
+- key: s
+  desc: Scripts (STRA)
+  type: command
+  buffer: 'stra_run_script'
+  accept: true
+
+# dotfiles
+- key: d
+  desc: Dotfiles
+  type: bindings
+  bindings:
+    - key: e
+      desc: edit dotfiles
+      type: command
+      buffer: 'cd ~/ghq/github.com/nodeselector/ns-dotfiles && nvim'
+      accept: true
+    - key: s
+      desc: setup (link+install)
+      type: command
+      buffer: 'cd ~/ghq/github.com/nodeselector/ns-dotfiles && make setup'
+      accept: true
+    - key: l
+      desc: link only
+      type: command
+      buffer: 'cd ~/ghq/github.com/nodeselector/ns-dotfiles && make setup-link'
+      accept: true
+    - key: b
+      desc: backup prefs
+      type: command
+      buffer: 'cd ~/ghq/github.com/nodeselector/ns-dotfiles && make backup-prefs'
+      accept: true
+    - key: r
+      desc: reload shell
+      type: command
+      buffer: 'reload'
+      accept: true

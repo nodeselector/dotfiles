@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Idempotent brew install wrapper
+# Usage: brew-install-idempotent [brew-options] package-name
+# Examples:
+#   brew-install-idempotent cmake
+#   brew-install-idempotent --cask keepassxc
+#   brew-install-idempotent jesseduffield/lazygit/lazygit
+
+set -euo pipefail
+
+# Extract package name (last argument)
+package_name="${@: -1}"
+
+# Check if it's a cask or tap install
+is_cask=false
+for arg in "$@"; do
+  if [[ "$arg" == "--cask" ]]; then
+    is_cask=true
+    break
+  fi
+done
+
+# Check if already installed
+if [[ "$is_cask" == true ]]; then
+  # For casks, check in /Applications or brew cask list
+  if brew list --cask "$package_name" &>/dev/null 2>&1; then
+    echo "✓ $package_name already installed"
+    exit 0
+  fi
+else
+  # For formulae, check with brew list
+  if brew list "$package_name" &>/dev/null 2>&1; then
+    echo "✓ $package_name already installed"
+    exit 0
+  fi
+fi
+
+# Not installed, proceed with install
+echo "→ Installing $package_name..."
+export HOMEBREW_NO_ANALYTICS=1
+brew install --quiet "$@"

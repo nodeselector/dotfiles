@@ -1,0 +1,5 @@
+installs:
+  cmd: mkdir -p ~/.local/bin
+
+links:
+  env: ~/.local/bin/env

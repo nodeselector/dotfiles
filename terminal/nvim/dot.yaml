@@ -1,0 +1,29 @@
+darwin:
+  installs: $DOTFILES_DIR/dev/brew/brew-install-idempotent neovim
+
+linux:
+  installs: ~/.install_nvim.sh
+linux|darwin:
+  links:
+    # linux install
+    install_linux.sh: ~/.install_nvim.sh
+    # zsh config
+    nvim.zshrc.zsh: ~/.zshrc.d/nvim.zshrc.zsh
+
+    # nvim config
+    init.lua: ~/.config/nvim/init.lua
+    lazyvim.json: ~/.config/nvim/lazyvim.json
+    .neoconf.json: ~/.config/nvim/.neoconf.json
+    lua/config/autocmds.lua: ~/.config/nvim/lua/config/autocmds.lua
+    lua/config/keymaps.lua: ~/.config/nvim/lua/config/keymaps.lua
+    lua/config/lazy.lua: ~/.config/nvim/lua/config/lazy.lua
+    lua/config/options.lua: ~/.config/nvim/lua/config/options.lua
+    lua/plugins/tokyonight.lua: ~/.config/nvim/lua/plugins/tokyonight.lua
+    lua/plugins/project.nvim.lua: ~/.config/nvim/lua/plugins/project.nvim.lua
+    lua/plugins/octo.nvim.lua: ~/.config/nvim/lua/plugins/octo.nvim.lua
+    lua/plugins/makeit.nvim.lua: ~/.config/nvim/lua/plugins/makeit.nvim.lua
+    lua/plugins/neotree.lua: ~/.config/nvim/lua/plugins/neotree.lua
+    lua/plugins/copy.lua: ~/.config/nvim/lua/plugins/copy.lua
+    lua/plugins/which-key.lua: ~/.config/nvim/lua/plugins/which-key.lua
+    lua/plugins/mason-auto-update.lua: ~/.config/nvim/lua/plugins/mason-auto-update.lua
+    lua/plugins/snacks-picker.lua: ~/.config/nvim/lua/plugins/snacks-picker.lua

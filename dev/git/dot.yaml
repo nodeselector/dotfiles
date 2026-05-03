@@ -1,0 +1,12 @@
+darwin:
+  installs: $DOTFILES_DIR/dev/brew/brew-install-idempotent jesseduffield/lazygit/lazygit
+linux:
+  installs: ~/.install_lazygit.sh
+  links:
+    install_lazygit_linux.sh: ~/.install_lazygit.sh
+
+global:
+  installs: false
+  links:
+    .gitignore: ~/.gitignore
+    .gitmessage: ~/.gitmessage
