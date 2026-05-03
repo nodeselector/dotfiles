@@ -105,13 +105,13 @@ if [[ ! -f "$PLUGINS_CONFIG" ]]; then
   exit 0
 fi
 
-# Check for yq
-if ! command -v yq &>/dev/null; then
-  echo "ERROR: yq is required but not installed. Install with: brew install yq" >&2
-  exit 1
+# Parse plugins from YAML (yq if available, grep fallback for simple lists)
+if command -v yq &>/dev/null; then
+  _parse_plugins() { yq -r '.plugins[]' "$1"; }
+else
+  _parse_plugins() { grep '^  - ' "$1" | sed 's/^  - //'; }
 fi
 
-# Parse plugins from YAML using yq
 plugin_count=0
 while IFS= read -r plugin_repo; do
   [[ -z "$plugin_repo" ]] && continue
@@ -121,7 +121,7 @@ while IFS= read -r plugin_repo; do
   fi
   
   ((++plugin_count))
-done < <(yq -r '.plugins[]' "$PLUGINS_CONFIG")
+done < <(_parse_plugins "$PLUGINS_CONFIG")
 
 echo "==> $plugin_count plugin(s) cloned"
 echo "==> Cloning complete into $(basename "$PLUGINS_DIR")/"
