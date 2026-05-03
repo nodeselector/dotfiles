@@ -4,13 +4,6 @@ set -eou pipefail
 
 echo "==> Bootstrapping dotfiles..."
 
-# Source codespace environment (secrets, GITHUB_TOKEN)
-if [[ -f /workspaces/.codespaces/shared/.env ]]; then
-  set -a
-  source /workspaces/.codespaces/shared/.env
-  set +a
-fi
-
 # On Linux, update apt cache before any installs
 if [[ -f /etc/os-release ]]; then
   echo "==> Updating package cache..."
