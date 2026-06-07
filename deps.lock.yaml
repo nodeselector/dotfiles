@@ -1,5 +1,5 @@
 version: 1
-locked_at: "2026-05-03T04:13:04Z"
+locked_at: "2026-06-07T01:21:51Z"
 deps:
     ControlEscape.spoon:
         type: github-clone
@@ -16,7 +16,7 @@ deps:
     fzf:
         type: github-clone
         repo: junegunn/fzf
-        ref: b4a86a9c8a688159131a27b6ec9dbce72ec11573
+        ref: abee152255387a5e0ee0543f275b792265e0ef5e
     gvm:
         type: curl-script
         repo: moovweb/gvm
@@ -41,17 +41,17 @@ deps:
     lazygit:
         type: github-release
         repo: jesseduffield/lazygit
-        tag: v0.61.1
-        ref: d167063b4f45d044524f3fba97f850d1eec3f95c
+        tag: v0.62.2
+        ref: 009c8975beb322f9374789476ac65dfa02321fce
         assets:
             darwin-arm64:
-                name: lazygit_0.61.1_darwin_arm64.tar.gz
-                url: https://github.com/jesseduffield/lazygit/releases/download/v0.61.1/lazygit_0.61.1_darwin_arm64.tar.gz
-                sha256: cb665faec92d1574d398296869c084d2b9686464a42806558b967bb87cd07bc9
+                name: lazygit_0.62.2_darwin_arm64.tar.gz
+                url: https://github.com/jesseduffield/lazygit/releases/download/v0.62.2/lazygit_0.62.2_darwin_arm64.tar.gz
+                sha256: f311d96b666b4865760e39f3967edfd7bf30b5d09e52a1bc7ae511f6bdfdd02c
             linux-amd64:
-                name: lazygit_0.61.1_linux_x86_64.tar.gz
-                url: https://github.com/jesseduffield/lazygit/releases/download/v0.61.1/lazygit_0.61.1_linux_x86_64.tar.gz
-                sha256: 1b91e660700f2332696726b635202576b543e2bc49b639830dccd26bc5160d5d
+                name: lazygit_0.62.2_linux_x86_64.tar.gz
+                url: https://github.com/jesseduffield/lazygit/releases/download/v0.62.2/lazygit_0.62.2_linux_x86_64.tar.gz
+                sha256: 8b9a4c2d0969cbea92b45c956dd2a44e1ba76900c9df49f1c60984045ce77984
     neovim:
         type: github-release
         repo: neovim/neovim
@@ -104,7 +104,7 @@ deps:
     tmux-fingers:
         type: github-clone
         repo: Morantron/tmux-fingers
-        ref: 29f90165fa858021ebd31838fb4d6f112c6d9ef0
+        ref: 5409aee9752492d59ed2ed8dc4cb60f829cb3a28
     tmux-fzf:
         type: github-clone
         repo: sainnhe/tmux-fzf
@@ -116,21 +116,21 @@ deps:
     tpm:
         type: github-clone
         repo: tmux-plugins/tpm
-        ref: 99469c4a9b1ccf77fade25842dc7bafbc8ce9946
+        ref: e261deb1b47614eed3400089ce7197dc68acc4eb
     uv:
         type: github-release
         repo: astral-sh/uv
-        tag: 0.11.8
-        ref: 0e961dd9a2bb6f73493d9e8398b725ad2d3b3837
+        tag: 0.11.19
+        ref: 7b2cff1c316eb3b7f52b1cc121d7e25eeea1b17c
         assets:
             darwin-arm64:
                 name: uv-aarch64-apple-darwin.tar.gz
-                url: https://github.com/astral-sh/uv/releases/download/0.11.8/uv-aarch64-apple-darwin.tar.gz
-                sha256: c729adb365114e844dd7f9316313a7ed6443b89bb5681d409eebac78b0bd06c8
+                url: https://github.com/astral-sh/uv/releases/download/0.11.19/uv-aarch64-apple-darwin.tar.gz
+                sha256: d8f59c38e8c4168ee468d423cd63184be12fa6995a4283d41ee1a14d003c9453
             linux-amd64:
                 name: uv-aarch64-unknown-linux-gnu.tar.gz
-                url: https://github.com/astral-sh/uv/releases/download/0.11.8/uv-aarch64-unknown-linux-gnu.tar.gz
-                sha256: eee8dd658d20e5ac85fec9c2326b6cbc9d83a1eef09ef07433e58698ac849591
+                url: https://github.com/astral-sh/uv/releases/download/0.11.19/uv-aarch64-unknown-linux-gnu.tar.gz
+                sha256: 83b13ab184a45b7d9a3b0e4b10eaebd50ad41e66cb16dcce8e60aa7be13ae399
     vim-tmux-navigator:
         type: github-clone
         repo: christoomey/vim-tmux-navigator
