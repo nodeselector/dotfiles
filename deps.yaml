@@ -9,15 +9,6 @@ deps:
       linux-amd64: wk-x86_64-unknown-linux-gnu
     dest: ~/.local/bin/wk
 
-  punch:
-    type: github-release
-    repo: nodeselector/punch
-    assets:
-      darwin-arm64: punch-darwin-arm64.tar.gz
-      darwin-amd64: punch-darwin-amd64.tar.gz
-      linux-amd64: punch-linux-amd64.tar.gz
-    dest: ~/.local/bin/punch
-
   lazygit:
     type: github-release
     repo: jesseduffield/lazygit
