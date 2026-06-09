@@ -102,7 +102,7 @@ deps:
     type: curl-script
     repo: starship/starship
     file: install/install.sh
-    run: sh -s -- --yes
+    run: sh -s -- --yes --bin-dir ~/.local/bin
 
   rustup:
     type: curl-script

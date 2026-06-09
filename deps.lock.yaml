@@ -1,5 +1,5 @@
 version: 1
-locked_at: "2026-06-07T01:21:51Z"
+locked_at: "2026-06-09T14:37:30Z"
 deps:
     ControlEscape.spoon:
         type: github-clone
