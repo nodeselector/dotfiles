@@ -166,6 +166,8 @@ function M.start()
     hs.hotkey.bind({"alt"}, "B", function() toggleSlot("browser") end)
     hs.hotkey.bind({"alt", "shift"}, "B", function() clearSlot("browser") end)
 
+    -- Alt+; handled natively by iTerm's Guake-style hotkey window
+
     print("[window-toggle] hotkeys bound: Alt+S (slack), Alt+B (browser), Alt+Shift+[key] (clear)")
 end
 

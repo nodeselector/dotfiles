@@ -7,7 +7,12 @@ if [[ ! -s "$NVM_DIR/nvm.sh" && -s "/usr/local/share/nvm/nvm.sh" ]]; then
   export NVM_DIR="/usr/local/share/nvm"
 fi
 # The following line loads nvm
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" 
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+# Skip if node 24 is already the default
+if command -v node >/dev/null 2>&1 && node -v 2>/dev/null | grep -q '^v24\.'; then
+  exit 0
+fi
 
 # Now you can use nvm as a command
 if ! nvm install 24 2>/dev/null; then

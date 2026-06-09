@@ -1,9 +1,20 @@
 {
   "Profiles" : [
     {
-      "Has Hotkey" : false,
+      "Has Hotkey" : true,
+      "HotKey Key Code" : 39,
+      "HotKey Characters" : "\u00e6",
+      "HotKey Characters Ignoring Modifiers" : ";",
+      "HotKey Modifier Flags" : 524288,
+      "HotKey Modifier Activation" : 0,
+      "HotKey Activated By Modifier" : false,
+      "HotKey Window Animates" : true,
+      "HotKey Window AutoHides" : true,
+      "HotKey Window Dock Click Action" : 0,
+      "HotKey Alternate Shortcuts" : [],
       "Rewritable" : true,
       "Window Type" : 1,
+      "Screen" : -1,
       "Non Ascii Font" : "MonaspiceNeNFM-Regular 11",
       "Blur Radius" : 0.10000000000000001,
       "Blend" : 0.49700615875912407,

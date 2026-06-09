@@ -96,24 +96,32 @@ deps:
     repo: nvm-sh/nvm
     tag: v0.40.1
     file: install.sh
-    run: PROFILE=/dev/null bash
+    run: |
+      if [ -d "$HOME/.nvm" ]; then echo "✓ nvm already installed"; exit 0; fi
+      PROFILE=/dev/null bash
 
   starship:
     type: curl-script
     repo: starship/starship
     file: install/install.sh
-    run: sh -s -- --yes
+    run: |
+      if command -v starship >/dev/null 2>&1; then echo "✓ starship already installed"; exit 0; fi
+      sh -s -- --yes --bin-dir ~/.local/bin
 
   rustup:
     type: curl-script
     repo: rust-lang/rustup
     tag: "1.29.0"
     file: rustup-init.sh
-    run: sh -s -- -y
+    run: |
+      if command -v rustup >/dev/null 2>&1; then echo "✓ rustup already installed"; exit 0; fi
+      sh -s -- -y
 
   gvm:
     type: curl-script
     repo: moovweb/gvm
     tag: stable
     file: binscripts/gvm-installer
-    run: GVM_NO_UPDATE_PROFILE=true bash
+    run: |
+      if [ -d "$HOME/.gvm" ]; then echo "✓ gvm already installed"; exit 0; fi
+      GVM_NO_UPDATE_PROFILE=true bash
