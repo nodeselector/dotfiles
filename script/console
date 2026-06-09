@@ -2,18 +2,51 @@
 set -euo pipefail
 
 # dotfiles console
+#
+# Locate the dotfiles repo root. This script is *copied* (not symlinked) by
+# punch, so we can't resolve through a symlink. Try, in order:
+#   1. DOTFILES_DIR env var (set during punch install)
+#   2. ghq-managed checkout
+#   3. Common conventional paths
 
-if command -v python3 >/dev/null 2>&1; then
-  SCRIPT_PATH=$(python3 - <<'PY' "$0"
-import os, sys
-print(os.path.realpath(sys.argv[1]))
-PY
-)
-else
-  SCRIPT_PATH="$(cd "$(dirname "$0")" && pwd -P)/$(basename "$0")"
-fi
-SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd -P)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd -P)"
+find_repo_root() {
+  local marker="script/console"
+
+  # 1. Explicit env var
+  if [[ -n "${DOTFILES_DIR:-}" && -f "$DOTFILES_DIR/$marker" ]]; then
+    echo "$DOTFILES_DIR"
+    return
+  fi
+
+  # 2. ghq
+  if command -v ghq >/dev/null 2>&1; then
+    local ghq_root
+    ghq_root="$(ghq root 2>/dev/null)/github.com/nodeselector/dotfiles"
+    if [[ -f "$ghq_root/$marker" ]]; then
+      echo "$ghq_root"
+      return
+    fi
+  fi
+
+  # 3. Conventional paths
+  local candidate
+  for candidate in \
+    "$HOME/.dotfiles" \
+    "$HOME/dotfiles" \
+    "$HOME/ghq/github.com/nodeselector/dotfiles" \
+    "/workspaces/.codespaces/.persistedshare/dotfiles"; do
+    if [[ -f "$candidate/$marker" ]]; then
+      echo "$candidate"
+      return
+    fi
+  done
+
+  echo "Error: cannot locate dotfiles repo root." >&2
+  echo "Set DOTFILES_DIR or clone via ghq." >&2
+  return 1
+}
+
+REPO_ROOT="$(find_repo_root)"
 
 BOLD=""; RESET=""; GREEN=""; BLUE=""; YELLOW=""; RED=""
 if command -v tput >/dev/null 2>&1; then
