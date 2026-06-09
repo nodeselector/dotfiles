@@ -1,0 +1,21 @@
+# macOS Defaults Lockfile
+# =======================
+# Only plists listed here will be tracked in defaults-safe/
+# This file serves as:
+#   1. Allowlist for what can be committed
+#   2. Documentation for why each plist is safe
+#   3. Context for future you / LLMs making changes
+#
+# NEVER PROMOTE (for reference):
+# - com.apple.accountsd         - contains auth tokens
+# - com.apple.security*         - keychain references
+# - com.apple.mail              - email account details
+# - com.apple.Safari            - may contain browsing data
+# - *tokens*, *credentials*     - anything with secrets
+
+com.apple.dock:
+  promoted: "2026-02-06"
+  reason: Dock layout, autohide, icon size - no secrets
+com.googlecode.iterm2:
+  promoted: "2026-03-20"
+  reason: 'iTerm2 settings: font, colors, keybinds, vertical spacing (100%). No secrets.'

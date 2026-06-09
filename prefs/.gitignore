@@ -1,0 +1,10 @@
+# Raw defaults export - NEVER commit
+# Contains potentially sensitive data from all macOS domains
+defaults/
+
+# Keep everything else tracked
+!defaults-safe/
+!defaults.lock.yaml
+!mackup/
+!macos-defaults/
+!test/

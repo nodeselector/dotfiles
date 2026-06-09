@@ -1,0 +1,40 @@
+# Curated list of safe defaults domains to export
+# These are known to not trigger TCC prompts and contain no secrets
+#
+# Format: one domain per line, comments start with #
+#
+# Add domains here after verifying they:
+#   1. Don't trigger permission popups
+#   2. Don't contain sensitive data
+#   3. Actually have settings you want to preserve
+
+# System UI
+com.apple.dock
+com.apple.finder
+com.apple.menuextra.clock
+com.apple.menuextra.battery
+
+# Input
+com.apple.keyboard
+com.apple.trackpad
+com.apple.mouse
+com.apple.AppleMultitouchTrackpad
+
+# Desktop & Screen
+com.apple.screencapture
+com.apple.screensaver
+com.apple.desktop
+com.apple.WindowManager
+
+# Accessibility (non-sensitive parts)
+com.apple.universalaccess
+
+# Global preferences
+NSGlobalDomain
+com.apple.LaunchServices
+
+# Dev tools (if installed)
+com.apple.dt.Xcode
+com.googlecode.iterm2
+com.microsoft.VSCode
+com.sublimetext.4

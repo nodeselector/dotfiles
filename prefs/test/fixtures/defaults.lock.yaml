@@ -1,0 +1,4 @@
+# Test lockfile fixture
+com.test.existing:
+  promoted: "2026-01-01"
+  reason: "Test fixture - already in lockfile"

@@ -1,0 +1,4 @@
+darwin:
+  installs: brew install mackup
+  links:
+    .mackup.cfg: ~/.mackup.cfg

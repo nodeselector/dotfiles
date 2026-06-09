@@ -1,3 +1,2 @@
 plugins:
-  - github.com/nodeselector/dotfiles.private
   - github.com/nodeselector/ai
