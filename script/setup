@@ -34,9 +34,19 @@ refresh_path() {
   fi
 }
 
+# --- Pinned punch release (must match script/bootstrap) ---
+PUNCH_VERSION="v0.2.0"
+PUNCH_BIN="$HOME/.local/bin/punch"
+
+punch_ok() {
+  [ -x "$PUNCH_BIN" ] || return 1
+  "$PUNCH_BIN" --help >/dev/null 2>&1 || return 1
+}
+
 # Ensure punch is available
-if ! command -v punch &>/dev/null; then
-  echo "==> punch not found, installing from release..."
+export PATH="$HOME/.local/bin:$PATH"
+if ! punch_ok; then
+  echo "==> Installing punch ${PUNCH_VERSION}..."
   mkdir -p "$HOME/.local/bin"
 
   _os="$(uname -s | tr '[:upper:]' '[:lower:]')"
@@ -46,13 +56,13 @@ if ! command -v punch &>/dev/null; then
     aarch64|arm64) _arch="arm64" ;;
   esac
   _asset="punch-${_os}-${_arch}.tar.gz"
-  _url="https://github.com/nodeselector/punch/releases/latest/download/${_asset}"
+  _url="https://github.com/nodeselector/punch/releases/download/${PUNCH_VERSION}/${_asset}"
 
   if curl -fSL --retry 3 -o "/tmp/${_asset}" "$_url" 2>/dev/null; then
     tar -xzf "/tmp/${_asset}" -C "$HOME/.local/bin/"
-    chmod +x "$HOME/.local/bin/punch"
+    chmod +x "$PUNCH_BIN"
     rm -f "/tmp/${_asset}"
-    echo "==> punch installed to ~/.local/bin/punch"
+    echo "==> punch ${PUNCH_VERSION} installed to ~/.local/bin/punch"
   else
     echo "warning: could not download punch from ${_url}" >&2
     echo "  falling back to source build..." >&2
@@ -66,14 +76,13 @@ if ! command -v punch &>/dev/null; then
           git clone https://github.com/nodeselector/punch.git "$PUNCH_REPO"
         fi
       fi
-      (cd "$PUNCH_REPO" && go build -o "$HOME/.local/bin/punch" .)
-      echo "==> punch built from source"
+      (cd "$PUNCH_REPO" && git fetch --tags && git checkout "$PUNCH_VERSION" && go build -o "$PUNCH_BIN" .)
+      echo "==> punch ${PUNCH_VERSION} built from source"
     else
       echo "error: cannot install punch (no binary release for ${_os}-${_arch}, no go toolchain)" >&2
       exit 1
     fi
   fi
-  export PATH="$HOME/.local/bin:$PATH"
 fi
 
 # Always link first (fast and idempotent)
