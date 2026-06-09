@@ -1,4 +1,6 @@
 installs:
-  cmd: cargo install tuicr --version 0.10.0
+  cmd: |
+    if command -v tuicr >/dev/null 2>&1; then exit 0; fi
+    cargo install tuicr --version 0.10.0
   depends:
     - ../dev/rust

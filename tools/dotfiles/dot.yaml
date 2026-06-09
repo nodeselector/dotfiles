@@ -3,4 +3,4 @@ global:
     ../../script/console: ~/.local/bin/dotfiles
 
 darwin:
-  installs: brew install gum
+  installs: $DOTFILES_DIR/dev/brew/brew-install-idempotent gum

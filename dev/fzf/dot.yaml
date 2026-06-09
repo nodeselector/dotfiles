@@ -1,4 +1,6 @@
 installs:
-  cmd: if [[ -d ~/.fzf ]]; then ~/.fzf/install --no-update-rc --completion --key-bindings; fi
+  cmd: |
+    if [ -f ~/.fzf/bin/fzf ] && [ -f ~/.fzf.zsh ]; then exit 0; fi
+    if [ -d ~/.fzf ]; then ~/.fzf/install --no-update-rc --completion --key-bindings; fi
 links:
   fzf.zshrc.zsh: ~/.zshrc.d/fzf.zshrc.zsh
