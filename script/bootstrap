@@ -2,10 +2,48 @@
 # Bootstrap dotfiles: install punch, link configs, install tools
 set -eou pipefail
 
+# --- Pinned punch release ---
+PUNCH_VERSION="v0.2.0"
+PUNCH_BIN="$HOME/.local/bin/punch"
+
+punch_sha256() {
+  case "$1" in
+    darwin-arm64) echo "8389a1e983905004bccd52cf203a13117c77adef7e5d174b58f0dce282c56a54" ;;
+    darwin-amd64) echo "8c0d226262f1389cef08dbfaa057cc78f022c77dabb3d905b93e17d4ebe77f2f" ;;
+    linux-arm64)  echo "9b1d3a977716b4e9118575b8b0d1616bc63a0c6ab12c4f7bb853bcdacdada575" ;;
+    linux-amd64)  echo "adc513e83a656c5b6dd84273d76e24774616c769ef09fffd8437f921d13b2ee2" ;;
+    *) echo "" ;;
+  esac
+}
+
+verify_sha256() {
+  local file="$1" expected="$2" actual
+  if command -v sha256sum >/dev/null 2>&1; then
+    actual="$(sha256sum "$file" | awk '{print $1}')"
+  elif command -v shasum >/dev/null 2>&1; then
+    actual="$(shasum -a 256 "$file" | awk '{print $1}')"
+  else
+    echo "WARN: no SHA256 tool found, skipping checksum" >&2
+    return 0
+  fi
+  if [ "$actual" != "$expected" ]; then
+    echo "ERROR: checksum mismatch" >&2
+    echo "  expected: $expected" >&2
+    echo "  actual:   $actual" >&2
+    return 1
+  fi
+}
+
+# Validate that punch exists and actually runs
+punch_ok() {
+  [ -x "$PUNCH_BIN" ] || return 1
+  "$PUNCH_BIN" --help >/dev/null 2>&1 || return 1
+}
+
 echo "==> Bootstrapping dotfiles..."
 
 # On Linux, update apt cache before any installs
-if [[ -f /etc/os-release ]]; then
+if [ -f /etc/os-release ]; then
   echo "==> Updating package cache..."
   sudo apt-get update -qq || true
 fi
@@ -13,7 +51,7 @@ fi
 # Install yq if not present (needed for parsing YAML configs)
 if ! command -v yq &> /dev/null; then
   echo "==> Installing yq..."
-  if [[ "$(uname)" == "Darwin" ]]; then
+  if [ "$(uname)" = "Darwin" ]; then
     brew install yq
   else
     sudo apt-get install -y yq || sudo snap install yq
@@ -21,10 +59,13 @@ if ! command -v yq &> /dev/null; then
 fi
 
 # Install punch (copy-based dotfile manager)
-if command -v punch &>/dev/null; then
-  echo "==> punch is already installed"
+export PATH="$HOME/.local/bin:$PATH"
+
+if punch_ok; then
+  echo "==> punch is already installed (${PUNCH_VERSION})"
 else
-  echo "==> Installing punch..."
+  [ -f "$PUNCH_BIN" ] && echo "==> Existing punch binary is corrupt/stale, reinstalling..."
+  echo "==> Installing punch ${PUNCH_VERSION}..."
   mkdir -p "$HOME/.local/bin"
 
   _os="$(uname -s | tr '[:upper:]' '[:lower:]')"
@@ -33,14 +74,23 @@ else
     x86_64)       _arch="amd64" ;;
     aarch64|arm64) _arch="arm64" ;;
   esac
-  _asset="punch-${_os}-${_arch}.tar.gz"
-  _url="https://github.com/nodeselector/punch/releases/latest/download/${_asset}"
+
+  _platform="${_os}-${_arch}"
+  _expected_sha="$(punch_sha256 "$_platform")"
+  if [ -z "$_expected_sha" ]; then
+    echo "ERROR: unsupported platform: ${_platform}" >&2
+    exit 1
+  fi
+
+  _asset="punch-${_platform}.tar.gz"
+  _url="https://github.com/nodeselector/punch/releases/download/${PUNCH_VERSION}/${_asset}"
 
   if curl -fSL --retry 3 -o "/tmp/${_asset}" "$_url" 2>/dev/null; then
+    verify_sha256 "/tmp/${_asset}" "$_expected_sha"
     tar -xzf "/tmp/${_asset}" -C "$HOME/.local/bin/"
-    chmod +x "$HOME/.local/bin/punch"
+    chmod +x "$PUNCH_BIN"
     rm -f "/tmp/${_asset}"
-    echo "==> punch installed to ~/.local/bin/punch"
+    echo "==> punch ${PUNCH_VERSION} installed to ~/.local/bin/punch"
   else
     echo "==> Release download failed, building from source..."
     if ! command -v go &>/dev/null; then
@@ -56,10 +106,14 @@ else
         git clone https://github.com/nodeselector/punch.git "$PUNCH_REPO"
       fi
     fi
-    (cd "$PUNCH_REPO" && go build -o "$HOME/.local/bin/punch" .)
-    echo "==> punch built from source"
+    (cd "$PUNCH_REPO" && git fetch --tags && git checkout "$PUNCH_VERSION" && go build -o "$PUNCH_BIN" .)
+    echo "==> punch ${PUNCH_VERSION} built from source"
   fi
-  export PATH="$HOME/.local/bin:$PATH"
+
+  if ! punch_ok; then
+    echo "ERROR: punch install failed — binary still not working" >&2
+    exit 1
+  fi
 fi
 
 # Get repo root for calling setup
@@ -74,10 +128,10 @@ if ! "$repo_root/script/clone-plugins"; then
 fi
 
 # Install pinned dependencies (supply-chain verified)
-if [[ -f "$repo_root/deps.yaml" ]]; then
+if [ -f "$repo_root/deps.yaml" ]; then
   echo ""
   echo "==> Installing pinned deps..."
-  punch --dotfiles "$repo_root" deps install
+  "$PUNCH_BIN" --dotfiles "$repo_root" deps install
 fi
 
 # Run full setup with installations
