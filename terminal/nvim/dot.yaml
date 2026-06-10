@@ -24,3 +24,4 @@ linux|darwin:
     lua/plugins/which-key.lua: ~/.config/nvim/lua/plugins/which-key.lua
     lua/plugins/mason-auto-update.lua: ~/.config/nvim/lua/plugins/mason-auto-update.lua
     lua/plugins/snacks-picker.lua: ~/.config/nvim/lua/plugins/snacks-picker.lua
+    lua/plugins/branch-diff.lua: ~/.config/nvim/lua/plugins/branch-diff.lua
