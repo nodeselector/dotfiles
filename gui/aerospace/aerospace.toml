@@ -140,6 +140,10 @@ run = ['layout floating']
 if.app-id = 'com.tinyspeck.chatlyio'
 run = ['layout floating']
 
-# Little Arc shares Arc's bundle ID and page titles, so Hammerspoon identifies its
-# AXIdentifier (littleBrowserWindow-*), runs `aerospace layout floating`, and applies
-# a phone-sized frame after AeroSpace releases the window from tiling.
+# Arc windows must start floating so transient Little Arc previews never enter the
+# tile tree and cause a workspace reflow. Hammerspoon then uses AXIdentifier to
+# restore bigBrowserWindow-* to tiling while keeping littleBrowserWindow-* floating
+# and phone-sized.
+[[on-window-detected]]
+if.app-id = 'company.thebrowser.Browser'
+run = ['layout floating']

@@ -6,7 +6,7 @@
 ---
 --- ALT-N: toggle Obsidian (launches it when it is not running)
 --- ALT-S: group-toggle already-running Discord and Slack apps
---- Little Arc windows: automatically forced into AeroSpace floating layout
+--- Arc windows: start floating; big windows are re-tiled and Little Arc stays phone-sized
 --- ALT-B: toggle slot "browser" (captures whatever window is focused)
 --- ALT-SHIFT-B: clear browser capture so next ALT-B grabs a new window
 
@@ -23,6 +23,7 @@ local SCRATCH_WORKSPACE = "Z"
 local AEROSPACE = "/opt/homebrew/bin/aerospace"
 local OBSIDIAN_BUNDLE_ID = "md.obsidian"
 local ARC_BUNDLE_ID = "company.thebrowser.Browser"
+local BIG_ARC_IDENTIFIER_PREFIX = "bigBrowserWindow-"
 local LITTLE_ARC_IDENTIFIER_PREFIX = "littleBrowserWindow-"
 local LITTLE_ARC_WIDTH = 540
 local LITTLE_ARC_HEIGHT = 860
@@ -37,8 +38,8 @@ local SOCIAL_BUNDLE_IDS = {
 -- Each slot: { windowId, appName, isHidden }
 local slots = {}
 local lastSocialBundleId = nil
-local littleArcFilter = nil
-local littleArcTimers = {}
+local arcWindowFilter = nil
+local arcWindowTimers = {}
 
 local function getSlot(name)
     if not slots[name] then
@@ -58,6 +59,17 @@ local function aerospaceFloat(w, onComplete)
             print(string.format("[window-toggle] float exit=%d stderr=%s", exitCode, stderr or ""))
             if onComplete then onComplete(exitCode) end
         end, {"layout", "floating", "--window-id", tostring(wid)}):start()
+    end
+end
+
+local function aerospaceTile(w)
+    if not w then return end
+    local wid = w:id()
+    if wid then
+        print(string.format("[window-toggle] tile wid=%s", tostring(wid)))
+        hs.task.new(AEROSPACE, function(exitCode, stdout, stderr)
+            print(string.format("[window-toggle] tile exit=%d stderr=%s", exitCode, stderr or ""))
+        end, {"layout", "tiling", "--window-id", tostring(wid)}):start()
     end
 end
 
@@ -105,22 +117,33 @@ local function floatApplicationWindows(app)
     end
 end
 
-local function isLittleArcWindow(w)
-    if not w then return false end
+local function arcWindowIdentifier(w)
+    if not w then return nil end
 
     local ok, result = pcall(function()
         local app = w:application()
         if not app or app:bundleID() ~= ARC_BUNDLE_ID then
-            return false
+            return nil
         end
 
         local element = axuielement.windowElement(w)
-        local identifier = element and element:attributeValue("AXIdentifier")
-        return type(identifier) == "string"
-            and identifier:sub(1, #LITTLE_ARC_IDENTIFIER_PREFIX) == LITTLE_ARC_IDENTIFIER_PREFIX
+        return element and element:attributeValue("AXIdentifier")
     end)
 
-    return ok and result
+    return ok and result or nil
+end
+
+local function identifierHasPrefix(identifier, prefix)
+    return type(identifier) == "string"
+        and identifier:sub(1, #prefix) == prefix
+end
+
+local function isLittleArcWindow(w)
+    return identifierHasPrefix(arcWindowIdentifier(w), LITTLE_ARC_IDENTIFIER_PREFIX)
+end
+
+local function isBigArcWindow(w)
+    return identifierHasPrefix(arcWindowIdentifier(w), BIG_ARC_IDENTIFIER_PREFIX)
 end
 
 local function resizeLittleArcWindow(w)
@@ -152,36 +175,47 @@ local function floatLittleArcWindow(w)
     end
 end
 
-local function queueLittleArcFloat(w)
+local function restoreBigArcTiling(w)
+    if isBigArcWindow(w) then
+        print(string.format("[window-toggle] tiling big Arc wid=%s", tostring(w:id())))
+        aerospaceTile(w)
+    end
+end
+
+local function queueArcLayout(w)
     local ok, wid = pcall(function() return w and w:id() end)
     if not ok or not wid then return end
 
-    if littleArcTimers[wid] then
-        littleArcTimers[wid]:stop()
+    if arcWindowTimers[wid] then
+        arcWindowTimers[wid]:stop()
     end
-    littleArcTimers[wid] = hs.timer.doAfter(0.1, function()
-        littleArcTimers[wid] = nil
-        floatLittleArcWindow(w)
+    arcWindowTimers[wid] = hs.timer.doAfter(0.05, function()
+        arcWindowTimers[wid] = nil
+        if isLittleArcWindow(w) then
+            floatLittleArcWindow(w)
+        else
+            restoreBigArcTiling(w)
+        end
     end)
 end
 
-local function startLittleArcWatcher()
-    if littleArcFilter then return end
+local function startArcWindowWatcher()
+    if arcWindowFilter then return end
 
-    littleArcFilter = hs.window.filter.new(false)
-    littleArcFilter:setAppFilter("Arc", {})
-    littleArcFilter:subscribe({
+    arcWindowFilter = hs.window.filter.new(false)
+    arcWindowFilter:setAppFilter("Arc", {})
+    arcWindowFilter:subscribe({
         hs.window.filter.windowCreated,
         hs.window.filter.windowFocused,
         hs.window.filter.windowUnminimized,
     }, function(w)
-        queueLittleArcFloat(w)
+        queueArcLayout(w)
     end)
 
-    hs.timer.doAfter(0.25, function()
+    hs.timer.doAfter(0.2, function()
         for _, app in ipairs(runningApplications({ARC_BUNDLE_ID})) do
             for _, w in ipairs(app:allWindows()) do
-                queueLittleArcFloat(w)
+                queueArcLayout(w)
             end
         end
     end)
@@ -338,7 +372,7 @@ end
 -- ─── Hotkey binding ──────────────────────────────────────────────────────────
 
 function M.start()
-    startLittleArcWatcher()
+    startArcWindowWatcher()
 
     hs.hotkey.bind({"alt"}, "N", toggleObsidian)
     hs.hotkey.bind({"alt"}, "S", toggleSocialGroup)
@@ -356,8 +390,10 @@ end
 M.toggleObsidian = toggleObsidian
 M.toggleSocialGroup = toggleSocialGroup
 M.isLittleArcWindow = isLittleArcWindow
+M.isBigArcWindow = isBigArcWindow
 M.floatLittleArcWindow = floatLittleArcWindow
 M.resizeLittleArcWindow = resizeLittleArcWindow
+M.restoreBigArcTiling = restoreBigArcTiling
 M.toggleSlot = toggleSlot
 M.clearSlot = clearSlot
 M.captureForSlot = captureForSlot
