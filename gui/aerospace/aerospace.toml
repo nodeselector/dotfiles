@@ -123,3 +123,19 @@ run = ['layout floating']
 [[on-window-detected]]
 if.app-id = 'com.objective-see.lulu.app'
 run = ['layout floating']
+
+[[on-window-detected]]
+if.app-id = 'md.obsidian'
+run = ['layout floating']
+
+[[on-window-detected]]
+if.app-id = 'com.hnc.Discord'
+run = ['layout floating']
+
+[[on-window-detected]]
+if.app-id = 'com.tinyspeck.slackmacgap'
+run = ['layout floating']
+
+[[on-window-detected]]
+if.app-id = 'com.tinyspeck.chatlyio'
+run = ['layout floating']

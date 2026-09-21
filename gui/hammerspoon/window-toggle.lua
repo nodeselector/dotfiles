@@ -1,10 +1,11 @@
 --- window-toggle.lua
---- Global hotkeys to toggle app windows with centered positioning.
+--- Global hotkeys for floating app toggles and captured scratch windows.
 ---
---- Each "slot" captures a specific window and toggles it via AeroSpace
---- scratch workspace Z. Windows appear centered and floating.
+--- App toggles use native hide/show while AeroSpace keeps their windows floating.
+--- Captured slots use AeroSpace scratch workspace Z and centered positioning.
 ---
---- ALT-S: toggle slot "slack" (auto-captures Slack's main window)
+--- ALT-N: toggle Obsidian (launches it when it is not running)
+--- ALT-S: group-toggle already-running Discord and Slack apps
 --- ALT-B: toggle slot "browser" (captures whatever window is focused)
 --- ALT-SHIFT-B: clear browser capture so next ALT-B grabs a new window
 
@@ -18,11 +19,18 @@ local CENTER_WIDTH_RATIO = 0.65
 local CENTER_HEIGHT_RATIO = 0.80
 local SCRATCH_WORKSPACE = "Z"
 local AEROSPACE = "/opt/homebrew/bin/aerospace"
+local OBSIDIAN_BUNDLE_ID = "md.obsidian"
+local SOCIAL_BUNDLE_IDS = {
+    "com.hnc.Discord",
+    "com.tinyspeck.slackmacgap",
+    "com.tinyspeck.chatlyio",
+}
 
 -- ─── Slot state ──────────────────────────────────────────────────────────────
 
 -- Each slot: { windowId, appName, isHidden }
 local slots = {}
+local lastSocialBundleId = nil
 
 local function getSlot(name)
     if not slots[name] then
@@ -70,6 +78,86 @@ local function focusNextVisible(excludeId)
             return
         end
     end
+end
+
+local function runningApplications(bundleIds)
+    local apps = {}
+    for _, bundleId in ipairs(bundleIds) do
+        for _, app in ipairs(hs.application.applicationsForBundleID(bundleId) or {}) do
+            table.insert(apps, app)
+        end
+    end
+    return apps
+end
+
+local function floatApplicationWindows(app)
+    for _, w in ipairs(app:allWindows()) do
+        aerospaceFloat(w)
+    end
+end
+
+local function toggleObsidian()
+    local apps = runningApplications({OBSIDIAN_BUNDLE_ID})
+    local app = apps[1]
+
+    if not app then
+        hs.application.launchOrFocusByBundleID(OBSIDIAN_BUNDLE_ID)
+        return
+    end
+
+    if app:isFrontmost() and not app:isHidden() then
+        app:hide()
+        return
+    end
+
+    app:unhide()
+    app:activate(true)
+    hs.timer.doAfter(0.05, function()
+        floatApplicationWindows(app)
+    end)
+end
+
+local function toggleSocialGroup()
+    local apps = runningApplications(SOCIAL_BUNDLE_IDS)
+    if #apps == 0 then
+        print("[window-toggle] social group: no running apps")
+        return
+    end
+
+    local anyShown = false
+    for _, app in ipairs(apps) do
+        if app:isFrontmost() then
+            lastSocialBundleId = app:bundleID()
+        end
+        if not app:isHidden() then
+            anyShown = true
+            lastSocialBundleId = lastSocialBundleId or app:bundleID()
+        end
+    end
+
+    if anyShown then
+        print(string.format("[window-toggle] hiding %d running social app(s)", #apps))
+        for _, app in ipairs(apps) do
+            app:hide()
+        end
+        return
+    end
+
+    print(string.format("[window-toggle] showing %d running social app(s)", #apps))
+    local focusApp = apps[1]
+    for _, app in ipairs(apps) do
+        app:unhide()
+        if app:bundleID() == lastSocialBundleId then
+            focusApp = app
+        end
+    end
+
+    hs.timer.doAfter(0.05, function()
+        for _, app in ipairs(apps) do
+            floatApplicationWindows(app)
+        end
+        focusApp:activate(true)
+    end)
 end
 
 local function hideToScratch(w, slot)
@@ -159,19 +247,21 @@ end
 -- ─── Hotkey binding ──────────────────────────────────────────────────────────
 
 function M.start()
-    -- All slots are manual capture -- press hotkey on a window to capture, press again to toggle
-    hs.hotkey.bind({"alt"}, "S", function() toggleSlot("slack") end)
-    hs.hotkey.bind({"alt", "shift"}, "S", function() clearSlot("slack") end)
+    hs.hotkey.bind({"alt"}, "N", toggleObsidian)
+    hs.hotkey.bind({"alt"}, "S", toggleSocialGroup)
 
+    -- Browser remains a manual capture slot: press on a window to capture it.
     hs.hotkey.bind({"alt"}, "B", function() toggleSlot("browser") end)
     hs.hotkey.bind({"alt", "shift"}, "B", function() clearSlot("browser") end)
 
     -- Alt+; handled natively by iTerm's Guake-style hotkey window
 
-    print("[window-toggle] hotkeys bound: Alt+S (slack), Alt+B (browser), Alt+Shift+[key] (clear)")
+    print("[window-toggle] hotkeys bound: Alt+N (Obsidian), Alt+S (Discord/Slack group), Alt+B (browser)")
 end
 
--- Expose for adding custom slots from init.lua
+-- Expose helpers for console testing and extension from init.lua.
+M.toggleObsidian = toggleObsidian
+M.toggleSocialGroup = toggleSocialGroup
 M.toggleSlot = toggleSlot
 M.clearSlot = clearSlot
 M.captureForSlot = captureForSlot
