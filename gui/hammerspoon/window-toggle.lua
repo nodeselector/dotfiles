@@ -1,15 +1,12 @@
 --- window-toggle.lua
---- Global hotkeys for floating app toggles and captured scratch windows.
+--- Global hotkeys for floating app toggles.
 ---
 --- App toggles use native hide/show while AeroSpace keeps their windows floating.
---- Topit mirrors selected floating windows at NSFloatingWindowLevel so they stay visible.
---- Captured slots use AeroSpace scratch workspace Z and centered positioning.
+--- Topit mirrors selected app windows at NSFloatingWindowLevel so they stay visible.
 ---
 --- ALT-N: toggle Obsidian (launches it when it is not running)
 --- ALT-S: group-toggle already-running Discord and Slack apps
 --- Arc windows: start floating; big windows are re-tiled and Little Arc stays phone-sized
---- ALT-B: toggle slot "browser" (captures whatever window is focused)
---- ALT-SHIFT-B: release browser capture and restore its original layout
 
 local M = {}
 local axuielement = require("hs.axuielement")
@@ -18,15 +15,11 @@ local axuielement = require("hs.axuielement")
 
 hs.window.animationDuration = 0
 
-local CENTER_WIDTH_RATIO = 0.65
-local CENTER_HEIGHT_RATIO = 0.80
-local SCRATCH_WORKSPACE = "Z"
 local AEROSPACE = "/opt/homebrew/bin/aerospace"
 local OSASCRIPT = "/usr/bin/osascript"
 local TOPIT_BUNDLE_ID = "com.lihaoyun6.Topit"
 local TOPIT_APP_PATH = "/Applications/Topit.app"
 local TOPIT_LAYER_PREFIX = "Topit Layer"
-local SLOT_SETTINGS_PREFIX = "window-toggle.slot."
 local OBSIDIAN_BUNDLE_ID = "md.obsidian"
 local ARC_BUNDLE_ID = "company.thebrowser.Browser"
 local BIG_ARC_IDENTIFIER_PREFIX = "bigBrowserWindow-"
@@ -39,45 +32,13 @@ local SOCIAL_BUNDLE_IDS = {
     "com.tinyspeck.chatlyio",
 }
 
--- ─── Slot state ──────────────────────────────────────────────────────────────
+-- ─── State ───────────────────────────────────────────────────────────────────
 
--- Each slot: { windowId, appName, isHidden, originalLayout, originalWorkspace }
-local slots = {}
 local lastSocialBundleId = nil
 local arcWindowFilter = nil
 local arcWindowTimers = {}
 local topitQueue = {}
 local topitBusy = false
-
-local function saveSlot(slot)
-    hs.settings.set(SLOT_SETTINGS_PREFIX .. slot.name, {
-        windowId = slot.windowId,
-        appName = slot.appName,
-        isHidden = slot.isHidden,
-        originalLayout = slot.originalLayout,
-        originalWorkspace = slot.originalWorkspace,
-    })
-end
-
-local function forgetSlot(name)
-    slots[name] = nil
-    hs.settings.clear(SLOT_SETTINGS_PREFIX .. name)
-end
-
-local function getSlot(name)
-    if not slots[name] then
-        local saved = hs.settings.get(SLOT_SETTINGS_PREFIX .. name)
-        slots[name] = {
-            name = name,
-            windowId = type(saved) == "table" and saved.windowId or nil,
-            appName = type(saved) == "table" and saved.appName or nil,
-            isHidden = type(saved) == "table" and saved.isHidden or false,
-            originalLayout = type(saved) == "table" and saved.originalLayout or nil,
-            originalWorkspace = type(saved) == "table" and saved.originalWorkspace or nil,
-        }
-    end
-    return slots[name]
-end
 
 -- ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -105,48 +66,12 @@ local function aerospaceTile(w, onComplete)
     end
 end
 
-local function aerospaceWindowState(w)
-    if not w or not w:id() then return nil, nil end
-    local output, ok = hs.execute(
-        AEROSPACE .. " list-windows --all --format '%{window-id}|%{window-layout}|%{workspace}'"
-    )
-    if not ok then return nil, nil end
-
-    for line in (output or ""):gmatch("[^\r\n]+") do
-        local id, layout, workspace = line:match("^(%d+)|([^|]+)|(.*)$")
-        if tonumber(id) == w:id() then
-            return layout, workspace
-        end
-    end
-    return nil, nil
-end
-
-local function centerWindow(w)
-    local screen = w:screen()
-    if not screen then return end
-    local sf = screen:frame()
-    local width = sf.w * CENTER_WIDTH_RATIO
-    local height = sf.h * CENTER_HEIGHT_RATIO
-    local x = sf.x + (sf.w - width) / 2
-    local y = sf.y + (sf.h - height) / 2
-    w:setFrame(hs.geometry.rect(x, y, width, height))
-end
-
 local function findWindowById(wid)
     if not wid then return nil end
     for _, w in ipairs(hs.window.allWindows()) do
         if w:id() == wid then return w end
     end
     return nil
-end
-
-local function focusNextVisible(excludeId)
-    for _, w in ipairs(hs.window.orderedWindows()) do
-        if w:id() ~= excludeId and w:isVisible() then
-            w:focus()
-            return
-        end
-    end
 end
 
 local function runningApplications(bundleIds)
@@ -579,137 +504,6 @@ local function toggleSocialGroup()
     end)
 end
 
-local function hideToScratch(w, slot)
-    print(string.format("[window-toggle] hide %s -> workspace %s", slot.appName or "?", SCRATCH_WORKSPACE))
-    slot.isHidden = true
-    saveSlot(slot)
-    setTopitPinned(w, false, function()
-        hs.task.new(AEROSPACE, function(exitCode, _, stderr)
-            print(string.format("[window-toggle] move-to-scratch exit=%d stderr=%s", exitCode, stderr or ""))
-        end, {"move-node-to-workspace", SCRATCH_WORKSPACE, "--window-id", tostring(w:id())}):start()
-        focusNextVisible(w:id())
-    end)
-end
-
-local function showFromScratch(w, slot)
-    print(string.format("[window-toggle] show %s from workspace %s", slot.appName or "?", SCRATCH_WORKSPACE))
-    slot.isHidden = false
-    saveSlot(slot)
-    hs.task.new(AEROSPACE, function(_, stdout, _)
-        local ws = (stdout or ""):match("^%s*(.-)%s*$")
-        hs.task.new(AEROSPACE, function(e2, _, s2)
-            print(string.format("[window-toggle] move-from-scratch exit=%d stderr=%s", e2, s2 or ""))
-            hs.timer.doAfter(0.05, function()
-                aerospaceFloat(w)
-                hs.timer.doAfter(0.05, function()
-                    centerWindow(w)
-                    w:focus()
-                    setTopitPinned(w, true)
-                end)
-            end)
-        end, {"move-node-to-workspace", ws or "1", "--window-id", tostring(w:id())}):start()
-    end, {"list-workspaces", "--focused"}):start()
-end
-
--- ─── Capture / clear ─────────────────────────────────────────────────────────
-
-local function captureForSlot(slotName, w)
-    local slot = getSlot(slotName)
-    local originalLayout, originalWorkspace = aerospaceWindowState(w)
-    slot.windowId = w:id()
-    slot.appName = w:application() and w:application():name() or "unknown"
-    slot.isHidden = false
-    slot.originalLayout = originalLayout
-    slot.originalWorkspace = originalWorkspace
-    saveSlot(slot)
-    local title = w:title() or "untitled"
-    print(string.format("[window-toggle] captured [%s]: wid=%s app=%s title=%s",
-        slotName, tostring(slot.windowId), slot.appName, title))
-    hs.alert.show(string.format("[%s] Captured: %s -- %s", slotName, slot.appName, title))
-    setTopitPinned(w, true)
-end
-
-local function clearSlot(slotName)
-    local slot = getSlot(slotName)
-    if not slot.windowId then
-        hs.alert.show(string.format("[%s] Nothing captured", slotName))
-        return
-    end
-
-    hs.alert.show(string.format("[%s] Cleared (%s). Restoring layout…", slotName, slot.appName or "?"))
-    local windowId = slot.windowId
-    local w = findWindowById(windowId)
-    local wasHidden = slot.isHidden
-    local originalLayout = slot.originalLayout
-    forgetSlot(slotName)
-
-    if not w then return end
-
-    local function unpin(current)
-        setTopitPinned(current, false, function()
-            if wasHidden then
-                local restored = findWindowById(windowId)
-                if restored then restored:focus() end
-            end
-        end)
-    end
-
-    local function restoreLayout()
-        local current = findWindowById(windowId)
-        if not current then return end
-        if originalLayout == "floating" then
-            aerospaceFloat(current, function() unpin(current) end)
-        else
-            aerospaceTile(current, function() unpin(current) end)
-        end
-    end
-
-    if not wasHidden then
-        restoreLayout()
-        return
-    end
-
-    hs.task.new(AEROSPACE, function(_, stdout, _)
-        local workspace = (stdout or ""):match("^%s*(.-)%s*$")
-        hs.task.new(AEROSPACE, function()
-            restoreLayout()
-        end, {"move-node-to-workspace", workspace or "1", "--window-id", tostring(windowId)}):start()
-    end, {"list-workspaces", "--focused"}):start()
-end
-
--- ─── Generic slot toggle ────────────────────────────────────────────────────
-
---- Toggle a named slot.
-local function toggleSlot(slotName)
-    local slot = getSlot(slotName)
-    local w = findWindowById(slot.windowId)
-
-    if not w then
-        -- Window is gone or never captured
-        forgetSlot(slotName)
-        slot = getSlot(slotName)
-
-        -- Capture whatever is focused
-        local focused = hs.window.focusedWindow()
-        if focused then
-            captureForSlot(slotName, focused)
-        else
-            hs.alert.show(string.format("[%s] No window to capture", slotName))
-        end
-        return
-    end
-
-    -- We have a live captured window -- toggle it
-    local focused = hs.window.focusedWindow()
-    local isFocused = focused and focused:id() == w:id()
-
-    if not slot.isHidden and isFocused then
-        hideToScratch(w, slot)
-    else
-        showFromScratch(w, slot)
-    end
-end
-
 -- ─── Hotkey binding ──────────────────────────────────────────────────────────
 
 function M.start()
@@ -719,13 +513,9 @@ function M.start()
     hs.hotkey.bind({"alt"}, "N", toggleObsidian)
     hs.hotkey.bind({"alt"}, "S", toggleSocialGroup)
 
-    -- Browser remains a manual capture slot: press on a window to capture it.
-    hs.hotkey.bind({"alt"}, "B", function() toggleSlot("browser") end)
-    hs.hotkey.bind({"alt", "shift"}, "B", function() clearSlot("browser") end)
-
     -- Alt+; handled natively by iTerm's Guake-style hotkey window
 
-    print("[window-toggle] hotkeys bound: Alt+N (Obsidian), Alt+S (Discord/Slack group), Alt+B (browser)")
+    print("[window-toggle] hotkeys bound: Alt+N (Obsidian), Alt+S (Discord/Slack group)")
 end
 
 -- Expose helpers for console testing and extension from init.lua.
@@ -739,8 +529,5 @@ M.restoreBigArcTiling = restoreBigArcTiling
 M.isTopitPinned = isTopitPinned
 M.setTopitPinned = setTopitPinned
 M.setTopitPinnedForWindows = setTopitPinnedForWindows
-M.toggleSlot = toggleSlot
-M.clearSlot = clearSlot
-M.captureForSlot = captureForSlot
 
 return M
