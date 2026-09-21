@@ -24,7 +24,7 @@ local AEROSPACE = "/opt/homebrew/bin/aerospace"
 local OBSIDIAN_BUNDLE_ID = "md.obsidian"
 local ARC_BUNDLE_ID = "company.thebrowser.Browser"
 local LITTLE_ARC_IDENTIFIER_PREFIX = "littleBrowserWindow-"
-local LITTLE_ARC_WIDTH = 500
+local LITTLE_ARC_WIDTH = 540
 local LITTLE_ARC_HEIGHT = 860
 local SOCIAL_BUNDLE_IDS = {
     "com.hnc.Discord",
