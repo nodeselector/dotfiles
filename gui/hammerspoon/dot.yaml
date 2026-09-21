@@ -3,4 +3,11 @@ darwin:
   links:
     init.lua: ~/.hammerspoon/init.lua
     window-toggle.lua: ~/.hammerspoon/window-toggle.lua
-  installs: $DOTFILES_DIR/dev/brew/brew-install-idempotent hammerspoon
+  installs:
+    cmd: |
+      $DOTFILES_DIR/dev/brew/brew-install-idempotent hammerspoon
+      $DOTFILES_DIR/gui/hammerspoon/install-topit
+      defaults write com.lihaoyun6.Topit showOnDock -bool false
+      defaults write com.lihaoyun6.Topit showMenubar -bool true
+      defaults write com.lihaoyun6.Topit maxFps -int 60
+      defaults write com.lihaoyun6.Topit neverRemindMe -array topit.how-to-use.note topit.no-notifications.note

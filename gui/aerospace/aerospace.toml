@@ -124,6 +124,11 @@ run = ['layout floating']
 if.app-id = 'com.objective-see.lulu.app'
 run = ['layout floating']
 
+# Topit owns the always-on-top mirror panels. They must remain outside the tile tree.
+[[on-window-detected]]
+if.app-id = 'com.lihaoyun6.Topit'
+run = ['layout floating']
+
 [[on-window-detected]]
 if.app-id = 'md.obsidian'
 run = ['layout floating']
