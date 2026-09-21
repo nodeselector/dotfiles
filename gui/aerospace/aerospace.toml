@@ -139,3 +139,7 @@ run = ['layout floating']
 [[on-window-detected]]
 if.app-id = 'com.tinyspeck.chatlyio'
 run = ['layout floating']
+
+# Little Arc shares Arc's bundle ID and page titles, so Hammerspoon identifies its
+# AXIdentifier (littleBrowserWindow-*), runs `aerospace layout floating`, and applies
+# a phone-sized frame after AeroSpace releases the window from tiling.
