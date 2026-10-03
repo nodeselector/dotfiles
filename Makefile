@@ -16,3 +16,11 @@ setup:
 ## setup-link: link dotfiles only (no installs)
 setup-link:
 	./script/setup --link-only
+
+## check-gui: compile and smoke-test macOS GUI automation
+check-gui:
+	./script/check-gui
+
+## reload-gui: check, install, and reload macOS GUI automation
+reload-gui:
+	./script/reload-gui

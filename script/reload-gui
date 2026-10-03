@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root=$(cd "$(dirname "$0")/.." && pwd)
+
+if [[ $(uname -s) != "Darwin" ]]; then
+  echo "error: GUI reload is only supported on macOS" >&2
+  exit 1
+fi
+
+"$repo_root/script/check-gui"
+
+echo "==> Copying dotfiles"
+punch --dotfiles "$repo_root" link
+
+echo "==> Installing Moonlander detector"
+mkdir -p "$HOME/.local/bin"
+tmp_binary=$(mktemp "$HOME/.local/bin/moonlander-active.XXXXXX")
+trap 'rm -f "$tmp_binary"' EXIT
+xcrun swiftc \
+  "$repo_root/gui/hammerspoon/moonlander-active.swift" \
+  -o "$tmp_binary"
+chmod 755 "$tmp_binary"
+mv -f "$tmp_binary" "$HOME/.local/bin/moonlander-active"
+trap - EXIT
+
+if command -v aerospace >/dev/null 2>&1; then
+  echo "==> Reloading AeroSpace"
+  aerospace reload-config
+else
+  echo "    warning: AeroSpace is not installed" >&2
+fi
+
+hs_cli=/Applications/Hammerspoon.app/Contents/Frameworks/hs/hs
+if [[ -x $hs_cli ]]; then
+  echo "==> Reloading Hammerspoon"
+  if pgrep -x Hammerspoon >/dev/null; then
+    # Reload invalidates the CLI message port, so a transport error is expected.
+    "$hs_cli" -c 'hs.reload()' >/dev/null 2>&1 || true
+  else
+    open -a Hammerspoon
+  fi
+
+  for _ in {1..20}; do
+    if "$hs_cli" -c 'return "ready"' >/dev/null 2>&1; then
+      break
+    fi
+    sleep 0.25
+  done
+
+  if ! "$hs_cli" -c 'return "ready"' >/dev/null 2>&1; then
+    echo "error: Hammerspoon did not become ready" >&2
+    exit 1
+  fi
+else
+  echo "    warning: Hammerspoon is not installed" >&2
+fi
+
+echo "==> GUI configuration reloaded"

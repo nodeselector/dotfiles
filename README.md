@@ -42,6 +42,8 @@ Punch walks the directory tree, resolves platform sections (`darwin`, `linux`, `
 | `make bootstrap` | First-time setup -- installs punch, clones plugins, links + installs everything |
 | `make setup` | Re-link and re-install (idempotent) |
 | `make setup-link` | Link only, skip installs |
+| `make check-gui` | Compile and smoke-test macOS GUI automation |
+| `make reload-gui` | Check, install, and reload AeroSpace/Hammerspoon automation |
 
 ## Plugins
 

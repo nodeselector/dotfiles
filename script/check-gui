@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root=$(cd "$(dirname "$0")/.." && pwd)
+
+if [[ $(uname -s) != "Darwin" ]]; then
+  echo "==> GUI checks skipped: macOS is required"
+  exit 0
+fi
+
+for command in xcrun git; do
+  if ! command -v "$command" >/dev/null 2>&1; then
+    echo "error: required command not found: $command" >&2
+    exit 1
+  fi
+done
+
+tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/dotfiles-gui-check.XXXXXX")
+trap 'rm -rf "$tmpdir"' EXIT
+
+echo "==> Compiling Moonlander detector"
+xcrun swiftc \
+  "$repo_root/gui/hammerspoon/moonlander-active.swift" \
+  -o "$tmpdir/moonlander-active"
+
+echo "==> Checking detector exit contract"
+set +e
+"$tmpdir/moonlander-active" >/dev/null
+status=$?
+set -e
+case "$status" in
+  0) echo "    Moonlander responded (personal input active)" ;;
+  1) echo "    Moonlander did not respond (inactive or disconnected)" ;;
+  *) echo "error: detector failed with exit $status" >&2; exit 1 ;;
+esac
+
+echo "==> Checking Lua syntax"
+if command -v luac >/dev/null 2>&1; then
+  luac -p \
+    "$repo_root/gui/hammerspoon/init.lua" \
+    "$repo_root/gui/hammerspoon/arc-windows.lua" \
+    "$repo_root/gui/hammerspoon/kvm-workspace.lua"
+else
+  hs_cli=/Applications/Hammerspoon.app/Contents/Frameworks/hs/hs
+  if [[ -x $hs_cli ]] && pgrep -x Hammerspoon >/dev/null; then
+    "$hs_cli" -c "assert(loadfile('$repo_root/gui/hammerspoon/init.lua')); assert(loadfile('$repo_root/gui/hammerspoon/arc-windows.lua')); assert(loadfile('$repo_root/gui/hammerspoon/kvm-workspace.lua')); return 'ok'" >/dev/null
+  else
+    echo "    warning: luac unavailable and Hammerspoon is not running; skipped" >&2
+  fi
+fi
+
+echo "==> Checking dotfile wiring"
+grep -Fq 'kvm-workspace.lua: ~/.hammerspoon/kvm-workspace.lua' "$repo_root/gui/hammerspoon/dot.yaml"
+grep -Fq 'moonlander-active.swift' "$repo_root/gui/hammerspoon/dot.yaml"
+
+git -C "$repo_root" diff --check
+
+echo "==> GUI checks passed"
