@@ -3,6 +3,9 @@ darwin:
   links:
     init.lua: ~/.hammerspoon/init.lua
     arc-windows.lua: ~/.hammerspoon/arc-windows.lua
+    kvm-workspace.lua: ~/.hammerspoon/kvm-workspace.lua
   installs:
     cmd: |
       $DOTFILES_DIR/dev/brew/brew-install-idempotent hammerspoon
+      mkdir -p "$HOME/.local/bin"
+      xcrun swiftc "$DOTFILES_DIR/gui/hammerspoon/moonlander-active.swift" -o "$HOME/.local/bin/moonlander-active"

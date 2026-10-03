@@ -29,7 +29,8 @@ outer.right =      0
 7 = 'primary'
 8 = 'primary'
 9 = 'primary'
-10 = ['^Odyssey G95SC$', 'built-in retina display$']
+# Workspace 10 is assigned dynamically by Hammerspoon. The KVM keeps the
+# Odyssey logically connected even when another computer is selected.
 
 [mode.main.binding]
 
